@@ -1,4 +1,4 @@
-<h1 style="font-size: 60px;"><b>🌍 ECOVERY</b></h1>
+# 🌍 Ecovery – AI 기반 친환경 나눔 플랫폼
 
 **Ecovery**는 *Eco(환경)* 와 *Recovery(회복)* 의 합성어로,  
 대형폐기물 인식 AI와 중고 물품 나눔 서비스를 통해  
