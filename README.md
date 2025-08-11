@@ -1,18 +1,98 @@
-Backend  
-2.1 Springboot - 3.4.7  
-2.2 Language - java 17  
-2.3 DB - Mysql8.0  
-2.4 ORM - MyBatis  
-2.5 Build Tool – Gradle  
-2.6 IDE(통합개발환경) – IntelliJ  
-2.7 server – tomcat 9  
-2.8 save file – local  
-3.0 AI server – fastAPI(python)  
-3.1 AI model – YOLO8  
-Front   
-HTML,CSS,JS  
-개발도구는 코드에디터(vscode)  
+# 🌍 ECOVERY 
 
+**Ecovery**는 *Eco(환경)* 와 *Recovery(회복)* 의 합성어로,  
+대형폐기물 인식 AI와 중고 물품 나눔 서비스를 통해  
+자원 재활용을 촉진하고 환경 보호를 실천하는 **친환경 플랫폼**입니다.
 
+(25.06.17 ~ 25.08.08 - 약 7주)  
+1주차 : DB 설계 및 프로젝트 구조 잡기  
+2주차 : 문의글 게시판 crud 구현, 이미지 업로드 기능 구현  
+3주차 : 댓글 구현, 검색/필터링 기능 추가  
+4주차 : 시큐리티(로그인) 기능 추가   
+5주차 : 심리테스트 구현 
+6주차 : 
+7주차 : 
+
+---
+# 📚 목차 📚
+1. [🌱 프로젝트 소개](#1-프로젝트-소개)
+2. [👥 참여자](#2-참여자)
+3. [💻 개발환경](#3-개발환경)
+4. [⚙️ 기술소개](#4-기술소개)
+5. [🗂️ 클래스 구조](#5-클래스-구조)
+6. [🖼️ 화면 예시](#6-화면-예시)
+7. [🐞 Troubleshooting](#7-troubleshooting)
+8. [✨ 개선사항 및 프로젝트 소감](#8-개선사항-및-프로젝트-소감)
+
+---
+# 1. 프로젝트 소개
+---
+# 2. 참여자 
+
+✨ 이지혜   
+  역할: 팀장 / 백엔드·프론트엔드 개발   
+  담당 기능: 게시글 조회(Read), 댓글 및 페이징 처리, JSP 기반 UI, 심리테스트 기능 구현 
+
+🛠️ **이연수 (본인)**   
+역할: 백엔드 개발    
+담당 기능: 게시글 등록/삭제(Create/Delete), 이미지 업로드 설계, ERD 설계
+
+🎨 방희경    
+역할: 백엔드 개발 / 디자인    
+담당 기능: 게시글 수정, JSP 기반 UI, 홈페이지 디자인, 포춘쿠키 기능 구현 
+
+🔐 노유경  
+역할: 백엔드 개발    
+담당 기능: Spring Security, 심리테스트 생성 기능 구현 
+
+🎨 최은지
+
+---
+# 3. 개발환경
+
+### Backend
+- Spring Boot 3.4.7  
+- Java 17  
+- MySQL 8.0  
+- MyBatis  
+- Gradle  
+- IntelliJ IDEA  
+- Tomcat 9  
+- File Save: Local
+
+### AI Server
+- FastAPI (Python)
+- YOLOv8
+
+### Frontend
+- HTML, CSS, JavaScript  
+- VS Code
+---
+# 4. 기술소개 
+
+### 🌱 Spring Boot  
+- 백엔드 전반을 구성하는 핵심 프레임워크로, REST API 기반 서비스 구현  
+- MyBatis와 연동하여 게시글, 이미지, 댓글 등 CRUD 로직 처리  
+- **무료나눔 게시판의 등록·조회·수정·삭제 API와 이미지 업로드 API를 구현하는 기반이 됨**
+
+### 🔐 Spring Security  
+- 회원 / 관리자 역할에 따른 접근 권한 제어  
+- 인증·인가 로직을 커스터마이징하여 Role 기반 보안 구성  
+- **무료나눔 게시판에서 비회원은 조회만 가능하고, 회원·관리자는 작성/수정/삭제 가능하도록 권한 설정**
+
+### 🧩 MyBatis  
+- SQL 매퍼(XML) 기반의 데이터 접근 계층 구현  
+- 동적 SQL을 활용해 검색, 페이징, 조건 분기 로직 처리  
+- **무료나눔 게시판 목록 조회(페이징·검색), 상세 조회(이미지 포함), 댓글·대댓글 처리 로직 구현에 사용**
+
+### 🖼 Thymeleaf & JavaScript  
+- 게시판, 상세 페이지 등 주요 뷰를 Thymeleaf로 구성하고 동적 UI를 JavaScript로 구현  
+- Fetch API 기반 비동기 처리로 댓글, 이미지 업로드, 상태 변경 등 실시간 반영  
+- **무료나눔 게시판 UI 구성 및 댓글 등록·수정·삭제, 거래 상태 변경, 이미지 업로드를 비동기 방식으로 처리**
+
+### 🤖 FastAPI & YOLOv8  
+- Python 기반 FastAPI 서버를 통해 대형폐기물 이미지 인식 API 제공  
+- YOLOv8 모델로 이미지 분류 및 결과 반환  
+- **무료나눔 게시판 이미지 라벨링 작업에 활용되어, 업로드 이미지의 카테고리 분류를 지원**
 
 <img width="1345" height="773" alt="image" src="https://github.com/user-attachments/assets/66b8e37a-af47-4e8f-b877-f7a984af799d" />
