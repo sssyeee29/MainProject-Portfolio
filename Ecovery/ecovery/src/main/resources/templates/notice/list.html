@@ -1,0 +1,184 @@
+<!--
+GreenCycle 공지사항 목록 페이지
+공지사항 게시판의 글 목록을 보여주는 페이지
+Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
+헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 카테고리 필터, 페이징 등을 표시함
+@author : eunji
+@fileName : list.html
+@since : 250717
+@history
+    - 250718 | yukyeong | 공지사항 페이지 초기 구조 반영 (환경톡톡 목록 기반)
+    - 250731 | yukyeong | 관리자만 글쓰기 버튼 표시, 새 공지 작성 링크 추가
+    - 250731 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용 (notice-list.js 연동)
+    - 250731 | yukyeong | 카테고리 탭 필터링 및 통계 영역/사이드바 구성 추가
+    - 250731 | yukyeong | HTML 구조 정리 및 클래스명 변경 (post → notice 계열)
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='공지사항'">
+    <title>공지사항</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/notice-style.css}">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 fragment로 감싸기 -->
+<div layout:fragment="content">
+    <!-- 메인 콘텐츠 영역 -->
+        <div class="container">
+            <!-- 페이지 헤더 (제목 및 통계) -->
+            <section class="page-header fade-in">
+                <div class="page-header-content">
+                    <h1>📢 공지사항</h1>
+                    <p>Ecovery의 새로운 소식과 중요한 안내사항을 확인하세요</p>
+
+                    <!-- 공지사항 통계 - 서버에서 통계 데이터 제공 -->
+<!--                    <div class="page-stats">-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${noticeStats.totalCount}">128</span>-->
+<!--                            <span class="stat-label">전체 공지</span>-->
+<!--                        </div>-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${noticeStats.importantCount}">5</span>-->
+<!--                            <span class="stat-label">중요 공지</span>-->
+<!--                        </div>-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${noticeStats.monthlyCount}">12</span>-->
+<!--                            <span class="stat-label">이번 달 공지</span>-->
+<!--                        </div>-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${#numbers.formatInteger(noticeStats.totalViews, 3)}">2,435</span>-->
+<!--                            <span class="stat-label">총 조회수</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                    <div class="page-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">1,247</span>
+                            <span class="stat-label">전체 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">892</span>
+                            <span class="stat-label">중요 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">156</span>
+                            <span class="stat-label">이번 달 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">56432</span>
+                            <span class="stat-label">총 조회수</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 공지사항 메인 컨테이너 -->
+            <div class="notice-container">
+                <!-- 공지사항 메인 영역 -->
+                <div class="notice-main fade-in">
+                    <!-- 공지사항 헤더 (제목 및 검색) -->
+                    <div class="notice-header">
+                        <h2 class="notice-title">📋 공지사항 목록</h2>
+                        <div class="notice-actions">
+                            <!-- 검색 폼 -->
+                            <form id="searchForm" class="search-form">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" id="searchInput"
+                                           placeholder="검색어를 입력하세요">
+                                    <button type="submit" class="search-btn">🔍</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 탭 - 현재 선택된 카테고리 표시 -->
+                    <div class="category-tabs">
+                        <button class="tab category-tab active" data-category="">전체</button>
+                        <button class="tab category-tab" data-category="important">중요 공지</button>
+                        <button class="tab category-tab" data-category="service">서비스</button>
+                        <button class="tab category-tab" data-category="maintenance">점검</button>
+                        <button class="tab category-tab" data-category="event">이벤트</button>
+                        <button class="tab category-tab" data-category="general">일반</button>
+                    </div>
+
+                    <!-- 공지사항 목록 -->
+                    <div class="notice-list" id="noticeList">
+                        <!-- JS에서 비동기로 렌더링 -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" id="pagination">
+                        <!-- JS에서 동적으로 구성 -->
+                    </div>
+                </div>
+
+                <!-- 사이드바 -->
+                <div class="notice-sidebar fade-in">
+
+                    <!-- 서비스 상태 - 서버에서 서비스 상태 정보 제공 -->
+                    <div class="sidebar-card">
+                        <h3>🚀 서비스 상태</h3>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <!-- 서비스 상태에 따른 조건부 렌더링 -->
+                            <div>
+                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                <h4 style="color: var(--primary-green); margin-bottom: 10px;">모든 서비스 정상</h4>
+                                <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);">
+                                    현재 모든 서비스가 <br>정상적으로 운영되고 있습니다.<br>
+                                    <strong>99.9%</strong> 가동률 유지 중
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- 바로가기 링크 -->
+                    <div class="sidebar-card">
+                        <h3>🔗 바로가기</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                ❓ 자주 묻는 질문
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📞 고객센터 문의
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📋 이용약관
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 관리자 전용 메뉴 - 관리자인 경우에만 표시 -->
+                    <div class="sidebar-card" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <h3>⚙️ 관리자 메뉴</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a th:href="@{/notice/register}" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+                                ➕ 새 공지 작성
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📊 공지 관리
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📈 통계 보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <th:block layout:fragment="script">
+        <!-- 추가 JS (필요시만) -->
+        <script th:src="@{/js/notice-script.js}"></script>
+        <script th:src="@{/js/notice-list.js}"></script> <!-- 목록 전용 -->
+    </th:block>
+
+</body>
+</html>
+

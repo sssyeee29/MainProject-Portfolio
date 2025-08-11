@@ -1,0 +1,106 @@
+# application.yml
+# Spring Boot, MyBatis, 데이터소스 설정 파일
+# @author : jihye
+# @fileName : application.yml
+# @since : 250708
+# @history
+#   - 250708 | jihye | 초기 환경 설정 작성
+#   - 250711 | yukyeong | username: ecovery로 수정, map-underscore-to-camel-case 설정 추가
+#   - 250715 | yukyeong | 이미지 경로 수정 (shop -> ecovery)
+#   - 250724 | yukyeong | 소셜 로그인 설정 추가
+#   - 250725 | sehui | 포트원 API 키 설정 추가
+#   - 250725 | yukyeong | 구글 로그인 설정 추가
+#   - 250726 | yukyeong | 환경톡톡 이미지 업로드 경로 추가
+
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ecovery?serverTimezone=UTC
+    username: ecovery
+    password: 1234
+  # Live Reload 기능 활성화
+  devtools:
+    livereload:
+      enabled: true
+
+  # Thymeleaf cache 사용 중지
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/ # Thymeleaf 템플릿 파일이 있는 기본 경로 설정
+    suffix: .html # Thymeleaf 템플릿 파일의 확장자 설정
+
+  servlet:
+    multipart:
+      max-File-Size: 20MB # 파일 한 개당 최대 사이즈
+      max-request-size: 100MB # 요청당 최대 파일 크기
+
+  # 소셜 로그인 설정
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: f68efa4d5f6c338a1a326b61c802977c
+            client-name: kakao
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
+            scope:
+              - profile_nickname
+              - account_email
+          google:
+            client-id: 92818083858-s0gmb0327116jgvcs1hj7san243astbp.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - profile
+              - email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+# 에코마켓 상품 이미지 업로드 경로
+ecoImgLocation: C:/ecovery/item
+
+disposalImgLocation: C:/ecovery/disposalImg
+
+# 무료나눔 이미지 업로드 경로
+freeImgLocation: C:/ecovery/free
+
+# 환경톡톡 이미지 업로드 경로
+envImgLocation: C:/ecovery/env
+
+# 리소스 이미지 업로드 경로
+uploadPath: C:/ecovery
+
+
+mybatis:
+  #config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+
+  # DB 컬럼명과 Java 필드명 자동 매핑 (snake_case → camelCase)
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: true    #자동으로 생성된 키 처리하기 위한 설정
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler # enum 타입 매핑
+
+# 쿼리에 물음표로 출력되는 바인드 파라미터 출력
+logging:
+  level:
+    root: info
+    com.ecovery.mapper: debug
+    org.apache.ibatis: debug
+
+ai:
+  server:
+    url: http://localhost:8000 #uvicorn 포트번호
+
+# 결제(포트원) API 키 설정
+portone:
+  imp-key: 3773346751161481
+  imp-secret: 6UWBTDqNyZUkTxNKIhuqpWmD9JFyrQY87aHtYJjVUOaNrpa14CsoEvyaCaA8zaDsGm4pPprobA58aXjq

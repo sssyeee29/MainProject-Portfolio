@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    DisposalFeedbackMapper.xml
+    - com.ecovery.mapper.DisposalFeedbackMapper 인터페이스와 연결되는 MyBatis 매퍼 XML 파일
+    - 분리배출(DisposalFeedbackVO) 관련 SQL 쿼리 정의
+-->
+<mapper namespace="com.ecovery.mapper.DisposalFeedbackMapper">
+
+
+    <!--오류 신고 내역 저장-->
+    <insert id="insertFeedback" parameterType="com.ecovery.domain.DisposalFeedbackVO" useGeneratedKeys="true" keyProperty="feedbackId">
+        insert into disposal_feedback(disposal_history_id, member_id, created_at)
+        values (#{disposalHistoryId}, #{memberId}, now())
+    </insert>
+
+    <!--특정 disposal_history_id로 기존 신고 여부 확인(중복 신고 방지)-->
+    <select id="countByDisposalHistoryId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM disposal_feedback
+        WHERE disposal_history_id = #{disposalHistoryId}
+    </select>
+
+    <!-- 상세 조회 -->
+    <select id="selectDetailByDisposalHistoryId" parameterType="long" resultType="com.ecovery.dto.DisposalFeedbackDto">
+        SELECT f.feedback_id       AS feedbackId,
+               f.disposal_history_id AS disposalHistoryId,
+               f.created_at         AS createdAt,
+               f.member_id          AS memberId,
+               h.ai_prediction      AS aiPrediction,
+               h.region_gu          AS regionGu,
+               h.final_item         AS finalItem,
+               h.ai_confidence      as aiConfidence,
+               i.disposal_img_url   AS disposalImgUrl,
+               m.nickname           AS nickname,
+               m.role as role
+        FROM disposal_feedback f
+                 LEFT JOIN disposal_history h ON f.disposal_history_id = h.disposal_history_id
+                 LEFT JOIN disposal_history_img i ON h.disposal_history_id = i.disposal_history_id
+                 LEFT JOIN member m ON f.member_id = m.member_id
+        WHERE f.feedback_id = #{feedbackId}
+            LIMIT 1
+    </select>
+
+    <!--관리자용 전체 신고 내역 조회-->
+    <select id="findAllFeedbackWithImg" resultType="com.ecovery.dto.DisposalFeedbackDto">
+        select f.feedback_id as feedbackId,
+               f.disposal_history_id as disposalHistoryId,
+               f.created_at as createdAt,
+               f.member_id as memberId,
+               h.ai_prediction as aiPrediction,
+               h.region_gu as regionGu,
+               h.final_item as finalItem,
+               h.ai_confidence      as aiConfidence,
+               i.disposal_img_url as disposalImgUrl,
+               m.nickname as nickname,
+               m.role as role
+        from disposal_feedback f
+                 left join disposal_history h on f.disposal_history_id = h.disposal_history_id
+                 left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
+                 left join member m on f.member_id = m.member_id
+        <include refid="dynamicConditions"/>
+        order by feedback_id desc
+        LIMIT #{amount} OFFSET #{offset}
+    </select>
+
+    <!--회원용 신고 내역 조회-->
+    <select id="findDisposalHistoryWithImgByMemberId" parameterType="long" resultType="com.ecovery.dto.DisposalFeedbackDto">
+        select f.feedback_id as feedbackId,
+               f.disposal_history_id as disposalHistoryId,
+               f.created_at as createdAt,
+               f.member_id as memberId,
+               h.ai_prediction as aiPrediction,
+               h.region_gu as regionGu,
+               h.final_item as finalItem,
+               h.ai_confidence      as aiConfidence,
+               i.disposal_img_url as disposalImgUrl,
+               m.nickname as nickname
+        from disposal_feedback f
+        left join disposal_history h on f.disposal_history_id = h.disposal_history_id
+        left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
+        left join member m on h.member_id = m.member_id
+        where f.member_id = #{memberId}
+        order by feedback_id desc
+    </select>
+
+    <!-- 검색 조건(제목, 내용, 지역(구,동) -->
+    <sql id="dynamicConditions">
+        <where>
+            <!-- 항상 참인 기본 조건을 맨 앞에 둡니다. -->
+            f.feedback_id > 0
+
+            <!-- 닉네임 검색 -->
+            <if test="type != null and type.toString() == 'N'.toString() and keyword != null and keyword != ''">
+                AND m.nickname LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+
+            <!-- 지역 필터 (JavaScript에서 regionGu 파라미터로 보낼 때) -->
+            <if test="regionGu != null and regionGu != ''">
+                AND h.region_gu = #{regionGu}
+            </if>
+
+            <!-- 분류 필터 (JavaScript에서 aiPrediction 파라미터로 보낼 때) -->
+            <if test="aiPrediction != null and aiPrediction != ''">
+                AND h.ai_prediction = #{aiPrediction}
+            </if>
+
+            <!-- AI 신뢰도 필터 (JavaScript에서 aiConfidenceRange 파라미터로 보낼 때) -->
+            <if test="aiConfidenceRange != null and aiConfidenceRange != ''">
+                <choose>
+                    <when test="aiConfidenceRange.toString() == 'high'.toString()">
+                        AND h.ai_confidence >= 90
+                    </when>
+                    <when test="aiConfidenceRange.toString() == 'medium'.toString()">
+                        AND h.ai_confidence BETWEEN 70 AND 89.99
+                    </when>
+                    <when test="aiConfidenceRange.toString() == 'low'.toString()">
+                        AND h.ai_confidence &lt; 70
+                    </when>
+                </choose>
+            </if>
+
+            <!-- 날짜 필터 (JavaScript에서 dateRange 파라미터로 보낼 때) -->
+            <if test="dateRange != null and dateRange != ''">
+                <choose>
+                    <when test="dateRange.toString() == 'today'.toString()">
+                        AND DATE(f.created_at) = CURDATE()
+                    </when>
+                    <when test="dateRange.toString() == 'week'.toString()">
+                        AND f.created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                    </when>
+                    <when test="dateRange.toString() == 'month'.toString()">
+                        AND f.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+                    </when>
+                    <when test="dateRange.toString() == '3month'.toString()">
+                        AND f.created_at >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </sql>
+
+
+    <!-- 페이징 처리를 위한 전체 게시글 수를 조회 -->
+    <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
+        SELECT COUNT(*)
+        FROM disposal_feedback f
+        LEFT JOIN disposal_history h ON f.disposal_history_id = h.disposal_history_id
+        LEFT JOIN member m ON h.member_id = m.member_id
+        <include refid="dynamicConditions"/>
+    </select>
+
+</mapper>

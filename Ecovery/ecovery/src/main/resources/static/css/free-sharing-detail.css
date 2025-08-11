@@ -1,0 +1,1665 @@
+/* =========================
+   초기화 및 기본 설정
+   ========================= */
+
+/* 모든 요소의 기본 여백과 패딩 제거, 박스 모델 통일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* 테두리와 패딩을 포함한 크기 계산 */
+}
+
+/* CSS 변수 정의 (색상과 크기를 한곳에서 관리) */
+:root {
+    /* 색상 팔레트 */
+    --primary-green: #2d5a3d;      /* 메인 녹색 */
+    --accent-green: #6fa776;       /* 포인트 녹색 */
+    --light-green: #a8d5b7;        /* 연한 녹색 */
+    --dark-green: #1e3d2a;         /* 진한 녹색 */
+    --white: #ffffff;              /* 흰색 */
+    --light-gray: #f8f9fa;         /* 연한 회색 */
+    --medium-gray: #6c757d;        /* 중간 회색 */
+    --dark-gray: #343a40;          /* 진한 회색 */
+    --border-color: #e0e0e0;       /* 테두리 색상 */
+    --error-red: #dc3545;          /* 에러 빨간색 */
+    --success-green: #28a745;      /* 성공 녹색 */
+    --warning-orange: #ffc107;     /* 경고 주황색 */
+    --wishlist-pink: #e91e63;      /* 찜하기 핑크색 */
+
+    /* 크기 및 간격 설정 */
+    --container-width: 1200px;     /* 최대 컨테이너 너비 */
+    --border-radius: 12px;         /* 모서리 둥글기 */
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 그림자 */
+    --transition: all 0.3s ease; /* 공통 전환 효과 */
+}
+/* Header Styles */
+.header {
+    background: var(--white);
+    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    padding: 15px 0;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--primary-green);
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 40px;
+    align-items: center;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 500;
+    transition: var(--transition);
+    position: relative;
+}
+
+.nav-menu a.active,
+.nav-menu a:hover {
+    color: var(--primary-green);
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-green);
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
+    width: 100%;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.btn-login, .btn-signup {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-login {
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.btn-login:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-signup {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-signup:hover {
+    background: var(--dark-green);
+}
+
+/* 기본 body 스타일 */
+body {
+    font-family: 'Noto Sans KR', sans-serif; /* 한글 폰트 */
+    line-height: 1.6;                        /* 줄 간격 */
+    color: var(--dark-gray);                 /* 기본 텍스트 색상 */
+    background: var(--light-gray);           /* 배경색 */
+}
+
+/* 컨테이너 (내용을 가운데 정렬하는 래퍼) */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;        /* 가운데 정렬 */
+    padding: 0 20px;       /* 좌우 여백 */
+}
+
+/* =========================
+   브레드크럼 네비게이션
+   ========================= */
+
+/* 브레드크럼 섹션 스타일 */
+.breadcrumb {
+    padding: 15px 0;       /* 상하 여백 */
+    background: var(--white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 브레드크럼 네비게이션 스타일 */
+.breadcrumb-nav {
+    display: flex;         /* 가로 배치 */
+    align-items: center;   /* 세로 가운데 정렬 */
+    gap: 10px;            /* 요소 사이 간격 */
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+/* 브레드크럼 링크 스타일 */
+.breadcrumb-nav a {
+    color: var(--medium-gray);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+/* 브레드크럼 링크 호버 효과 */
+.breadcrumb-nav a:hover {
+    color: var(--primary-green);
+}
+
+/* 브레드크럼 구분자 스타일 */
+.breadcrumb-nav span { /* 변경: .breadcrumb-separator 대신 span 사용 */
+    color: var(--medium-gray);
+    font-weight: 300;
+}
+
+/* 현재 페이지 표시 스타일 */
+.breadcrumb-nav .current { /* 변경: .current-page 대신 .current 사용 */
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+/* =========================
+   메인 상세 정보 섹션
+   ========================= */
+
+/* 메인 상세 정보 섹션 스타일 */
+.detail-section { /* 변경: .detail-main-section 대신 .detail-section 사용 */
+    padding: 40px 0 20px 0; /* 상하 여백 조정 */
+}
+
+/* 🔥 새로 추가: 목록으로 돌아가는 버튼 */
+.back-to-list {
+    margin-bottom: 20px;
+    text-align: right; /* 버튼을 오른쪽으로 정렬 */
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 15px;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 500;
+    transition: var(--transition);
+    font-size: 14px;
+}
+
+.back-btn:hover {
+    background: var(--light-gray);
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+.back-btn .icon {
+    font-size: 18px; /* 아이콘 크기 조정 */
+    line-height: 1; /* 아이콘과 텍스트 정렬 */
+}
+
+
+/* 상세 정보 래퍼 (좌우 2열 레이아웃) */
+.detail-container {
+    display: grid;
+    grid-template-columns: 1fr 400px; /* 이미지:정보 = 유동적:고정 */
+    gap: 40px;                        /* 좌우 간격 */
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 40px;
+    margin-bottom: 40px;
+    max-width: 1200px;                /* 최대 너비 설정 (예시) */
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* =========================
+   왼쪽: 이미지 갤러리 섹션
+   ========================= */
+
+/* 이미지 갤러리 컨테이너 */
+.image-section { /* 변경: .image-gallery 대신 .image-section 사용 */
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    gap: 20px;             /* 메인 이미지와 썸네일 사이 간격 */
+}
+
+/* 메인 이미지 컨테이너 */
+.main-image { /* 변경: .main-image-container 대신 .main-image 사용 (HTML 구조에 맞춰) */
+    width: 100%;
+    height: 500px;         /* 고정 높이 */
+    border-radius: 12px;
+    overflow: hidden;      /* 이미지가 컨테이너를 벗어나지 않도록 */
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 메인 이미지 스타일 */
+.main-image img { /* 변경: .main-image 에 직접 적용 대신 img에 적용 */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* 비율 유지하며 컨테이너 채움 */
+    transition: transform 0.3s ease; /* 호버 효과 애니메이션 */
+}
+
+/* 메인 이미지 호버 효과 */
+.main-image img:hover {
+    transform: scale(1.02); /* 약간 확대 */
+}
+
+/* 썸네일 갤러리 컨테이너 */
+.thumbnail-images { /* 변경: .thumbnail-gallery 대신 .thumbnail-images 사용 */
+    display: flex;
+    gap: 10px;             /* 썸네일 사이 간격 */
+    justify-content: center; /* 가운데 정렬 */
+    flex-wrap: wrap;       /* 화면이 작을 때 줄바꿈 */
+}
+
+/* 썸네일 이미지 스타일 */
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;     /* 비율 유지하며 컨테이너 채움 */
+    cursor: pointer;       /* 클릭 가능 표시 */
+    border: 3px solid transparent; /* 기본 투명 테두리 */
+    transition: all 0.3s ease;     /* 애니메이션 효과 */
+}
+
+/* 썸네일 호버 효과 */
+.thumbnail:hover {
+    border-color: var(--accent-green);
+    transform: translateY(-2px); /* 위로 살짝 이동 */
+}
+
+/* 선택된 썸네일 스타일 */
+.thumbnail.active {
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+}
+
+/* =========================
+   상세 설명 섹션
+   ========================= */
+
+/* 인라인 상품 설명 섹션 (메인 섹션 내부로 이동) */
+.description-section { /* 변경: .description-section-inline 대신 .description-section 사용 */
+    grid-column: 1 / -1; /* 전체 너비 차지 */
+    margin-top: 30px; /* 상세 정보 섹션 아래로 이동했으므로 마진 조정 */
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* 인라인 상품 설명 제목 */
+.description-section h2 { /* 변경: .description-section-inline h2 대신 .description-section h2 사용 */
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 25px;
+}
+
+/* 상품 설명 내용 */
+.description-content {
+    line-height: 1.8;      /* 줄 간격 */
+    color: var(--dark-gray);
+    font-size: 16px;
+    white-space: pre-wrap;  /* 줄바꿈과 공백 유지 */
+    word-wrap: break-word;  /* 긴 단어 줄바꿈 */
+    min-height: 200px;      /* 최소 높이 */
+    padding: 20px;
+    background: var(--light-gray);
+    border-radius: 8px;
+}
+
+/* =========================
+   오른쪽: 상품 정보 섹션
+   ========================= */
+
+/* 상품 정보 컨테이너 */
+.info-section { /* 변경: .product-info 대신 .info-section 사용 */
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    gap: 25px;             /* 각 섹션 사이 간격 */
+}
+
+/* 상품 헤더 (상태 배지 + 제목) */
+.product-header {
+    border-bottom: 2px solid var(--light-gray);
+    padding-bottom: 20px;
+}
+
+/* 상품 제목 영역 (상태 배지와 제목을 감싸는 div) */
+.product-title-area {
+    margin-bottom: 15px; /* 제목과 작성자 정보 사이 간격 */
+}
+
+/* 상태 배지 스타일 */
+.status-badge {
+    display: inline-block;
+    background: var(--success-green);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 20px;    /* 둥근 배지 */
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* 상품 제목 스타일 */
+.product-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dark-gray);
+    line-height: 1.3;      /* 줄 간격 */
+    margin: 0;
+}
+
+/* 작성자 정보 카드 (HTML 구조에 맞춰 .author-info 로 변경) */
+.author-info { /* 변경: .author-card 대신 .author-info 사용 */
+    display: flex;
+    align-items: center;   /* 세로 가운데 정렬 */
+    gap: 15px;            /* 아바타와 정보 사이 간격 */
+    padding: 20px; /* 이전 .author-card의 패딩 유지 */
+    background: var(--light-gray); /* 이전 .author-card의 배경 유지 */
+    border-radius: 12px; /* 이전 .author-card의 둥근 모서리 유지 */
+    margin-top: 20px; /* 기존 간격 유지 */
+}
+
+/* 작성자 아바타 (HTML에 아바타 이미지가 없으므로 제거) */
+/* .author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 20px;
+} */
+
+/* 작성자 상세 정보 */
+.author-details {
+    flex: 1;              /* 남은 공간 모두 차지 */
+}
+
+/* 작성자 이름 */
+.author-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 5px;
+}
+
+/* 게시글 메타 정보 (조회수, 작성일) */
+.author-meta { /* 변경: .post-meta 대신 .author-meta 사용 */
+    display: flex;
+    gap: 15px;            /* 조회수와 작성일 사이 간격 */
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+/* 상품 상세 정보 테이블 */
+.product-details { /* 변경: .info-table 대신 .product-details 사용 */
+    border-top: 2px solid var(--light-green);
+    margin-top: 25px; /* 이전 .info-table의 위치에 맞춰 마진 추가 */
+}
+
+/* 정보 테이블 각 행 */
+.detail-row { /* 변경: .info-row 대신 .detail-row 사용 */
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝에 배치 */
+    align-items: center;            /* 세로 가운데 정렬 */
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 마지막 행은 하단 테두리 제거 */
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+/* 정보 레이블 (왼쪽) */
+.detail-label { /* 변경: .info-label 대신 .detail-label 사용 */
+    font-weight: 600;
+    color: var(--medium-gray);
+    font-size: 14px;
+}
+
+/* 정보 값 (오른쪽) */
+.detail-value { /* 변경: .info-value 대신 .detail-value 사용 */
+    font-weight: 500;
+    color: var(--dark-gray);
+    text-align: right;    /* 우측 정렬 */
+}
+
+/* =========================
+   버튼 스타일 (위치 수정)
+   ========================= */
+
+/* 작성자 전용 액션 버튼 및 연락/채팅 버튼 */
+.product-actions { /* 변경: .action-buttons 대신 .product-actions 사용 */
+    display: flex;
+    gap: 10px;            /* 버튼 사이 간격 */
+    margin-top: 20px;
+    justify-content: flex-end; /* 오른쪽으로 정렬 */
+    /* 🔥 수정: 작성자 정보와 상품 상세 정보 사이에 배치 */
+}
+
+/* 드롭다운 메뉴 스타일 */
+.product-actions .dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.product-actions .dropdown-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--medium-gray);
+    padding: 5px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.product-actions .dropdown-toggle:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+.product-actions .dropdown-menu {
+    display: flex; /* 변경: 블록 대신 플렉스로 하여 버튼을 가로로 배열 */
+    flex-direction: row; /* 가로 배치 */
+    gap: 10px; /* 버튼 사이 간격 */
+    /* position: absolute; */ /* HTML 구조상 필요 없음 */
+    /* background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 10;
+    right: 0;
+    padding: 10px; */
+}
+
+/* 액션 버튼 및 연락 버튼 공통 스타일 */
+.action-btn, /* 기존 .action-btn 유지 */
+.contact-btn {
+    flex: 1;              /* 동일한 너비로 분할 */
+    padding: 20px 30px;   /* 패딩 증가: 15px 20px → 20px 30px */
+    border: none;
+    border-radius: 10px;  /* 모서리 둥글기 증가: 8px → 10px */
+    font-size: 18px;      /* 폰트 크기 증가: 16px → 18px */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none; /* 링크 버튼을 위해 추가 */
+    display: flex; /* 아이콘과 텍스트를 함께 중앙 정렬 */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;            /* 아이콘과 텍스트 간격 증가: 8px → 10px */
+    min-height: 60px;     /* 최소 높이 추가 */
+}
+
+/* 수정 버튼 스타일 */
+.edit-btn { /* 변경: .btn-edit 대신 .edit-btn 사용 */
+    background: var(--warning-orange);
+    color: var(--white);
+}
+
+/* 수정 버튼 호버 효과 */
+.edit-btn:hover { /* 변경: .btn-edit:hover 대신 .edit-btn:hover 사용 */
+    background: #e0a800;
+    transform: translateY(-1px);
+}
+
+/* 삭제 버튼 스타일 */
+.delete-btn { /* 변경: .btn-delete 대신 .delete-btn 사용 */
+    background: var(--error-red);
+    color: var(--white);
+}
+
+/* 삭제 버튼 호버 효과 */
+.delete-btn:hover { /* 변경: .btn-delete:hover 대신 .delete-btn:hover 사용 */
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+/* 찜하기 버튼 스타일 (HTML에 없으므로 유지하거나 제거) */
+.btn-wishlist {
+    background: var(--wishlist-pink);
+    color: var(--white);
+}
+
+/* 찜하기 버튼 호버 효과 */
+.btn-wishlist:hover {
+    background: #c2185b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.3);
+}
+
+/* 주요 버튼 스타일 (채팅하기) */
+.btn-primary {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* 주요 버튼 호버 효과 */
+.btn-primary:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 90, 61, 0.3);
+}
+
+/* 보조 버튼 스타일 (연락처보기) */
+.btn-secondary {
+    background: var(--white);
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+/* 보조 버튼 호버 효과 */
+.btn-secondary:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* =========================
+   댓글 섹션 (수정된 레이아웃)
+   ========================= */
+
+/* 댓글 섹션 스타일 */
+.comments {
+    width: 100%;                       /* 부모 기준 전체 너비 강제 */
+    grid-column: 1 / -1;               /* 그리드 열 전체 차지 (grid 내부라면) */
+    max-width: 1200px;                 /* detail-container와 동일한 최대 너비 */
+    margin: 40px auto 0 auto;          /* 위쪽 마진 + 가운데 정렬 */
+    padding: 40px;                     /* 내부 여백 */
+    background: var(--white);          /* 흰 배경 */
+    border-radius: var(--border-radius); /* 둥근 테두리 */
+    box-shadow: var(--box-shadow);    /* 그림자 */
+    box-sizing: border-box;
+
+    /* ✅ 줄바꿈 안전 처리 */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 댓글 헤더 (제목 + 정렬 옵션) - 수정된 레이아웃 */
+.comment-header {
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝에 배치 */
+    align-items: center;            /* 세로 가운데 정렬 */
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+/* 댓글 제목 */
+.comment h2, .comment-header h2 { /* 변경: .comment-title 대신 .comment h2 사용 */
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+/* 댓글 개수 배지 (HTML에 #commentCount 없음) */
+#commentCount {
+    background: var(--primary-green);
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+/* 댓글 정렬 드롭다운 - 헤더 오른쪽으로 이동 */
+.comment-sort { /* HTML에 .comment-sort 있음 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* margin-bottom: 20px; */ /* 헤더로 이동했으므로 마진 제거 */
+}
+
+.comment-sort select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--white);
+    cursor: pointer;
+}
+
+/* 댓글 작성 폼 - 수정된 레이아웃 */
+.comment-form {
+    display: flex;
+    flex-direction: row; /* 가로 배치로 변경 */
+    gap: 15px;             /* 입력창과 버튼 사이 간격 */
+    align-items: flex-end; /* 하단 정렬 */
+    margin-bottom: 30px;   /* 댓글 목록과의 간격 */
+}
+
+/* 댓글 입력창 - 수정된 스타일 */
+.comment-form textarea {
+    flex: 1;                          /* 남은 공간 모두 차지 */
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    resize: none;                     /* 크기 조절 비활성화 */
+    min-height: 80px;                 /* 높이 줄임 */
+    max-height: 120px;                /* 최대 높이 조정 */
+    overflow-y: auto;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* 댓글 입력창 포커스 효과 */
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-green);
+}
+
+/* 댓글 등록 버튼 - 수정된 위치 */
+.comment-form button {
+    /* align-self: flex-end; */ /* 우측 정렬 제거 */
+    padding: 12px 24px;
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;              /* 텍스트 줄바꿈 방지 */
+    height: fit-content;              /* 버튼 높이를 내용에 맞춤 */
+}
+
+/* 댓글 등록 버튼 호버 효과 */
+.comment-form button:hover {
+    background: var(--dark-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+}
+
+/* 댓글 목록 컨테이너 */
+.comment-list {
+    margin-bottom: 30px;
+}
+
+/* 개별 댓글 아이템 */
+.comment-item {
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px 0;
+}
+
+/* 마지막 댓글은 하단 테두리 제거 */
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+/* 댓글 헤더 정보 (작성자, 작성일, 삭제 버튼) */
+.comment-header-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+/* 댓글 작성자 이름 */
+.comment-author {
+    font-weight: 600;
+    color: var(--primary-green);
+    margin: 0;
+}
+
+/* 댓글 작성일 */
+.comment-date {
+    font-size: 12px;
+    color: var(--medium-gray);
+    margin: 0;
+}
+
+/* 댓글 삭제 버튼 */
+.comment-delete-btn {
+    background: var(--error-red);
+    color: var(--white);
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: auto;
+}
+
+/* 댓글 삭제 버튼 호버 효과 */
+.comment-delete-btn:hover {
+    background: #c82333;
+}
+
+/* 댓글 내용 */
+.comment-content {
+    color: var(--dark-gray);
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+/* 댓글 액션 아이콘들 (좋아요, 싫어요, 답글) */
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* ❤️'수정' 버튼이 '등록' 기능일 때의 스타일 */
+/* 기존 .comment-action-btn .reply-btn 스타일을 기반으로 오버라이드 */
+.comment-action-btn.reply-btn.is-submitting-edit {
+    background-color: white; /* 배경색을 흰색으로 */
+    color: #4CAF50; /* 글씨색을 연두색으로 (수정 버튼과 동일한 색상 사용) */
+    border: 1px solid #4CAF50; /* 테두리도 연두색으로 */
+    /* padding, border-radius 등은 기존 .comment-action-btn에서 상속받거나 필요시 재정의 */
+}
+
+/* '등록' 버튼 호버 시 스타일 */
+.comment-action-btn.reply-btn.is-submitting-edit:hover {
+    background-color: #e6ffe6; /* 호버 시 연한 연두색 배경 */
+    color: #3e8e41; /* 호버 시 글씨색 약간 진하게 */
+    border-color: #3e8e41; /* 호버 시 테두리색 약간 진하게 */
+}
+
+/* 댓글 액션 버튼 공통 스타일 */
+.comment-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--medium-gray);
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* 댓글 액션 버튼 호버 효과 */
+.comment-action-btn:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+/* 좋아요 버튼이 눌린 상태 */
+.comment-action-btn.liked {
+    color: var(--error-red);
+}
+
+/* 싫어요 버튼이 눌린 상태 */
+.comment-action-btn.disliked {
+    color: var(--primary-green);
+}
+
+/* 답글 버튼 스타일 */
+.comment-action-btn.reply-btn {
+    color: var(--accent-green);
+}
+
+/* 답글 버튼 호버 효과 */
+.comment-action-btn.reply-btn:hover {
+    color: var(--primary-green);
+}
+
+/* 액션 아이콘 */
+.action-icon {
+    font-size: 14px;
+}
+
+/* 액션 개수 */
+.action-count {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* 대댓글 컨테이너 */
+.child-comments {
+    margin-left: 30px;    /* 들여쓰기 */
+    margin-top: 15px;
+}
+
+/* 개별 대댓글 아이템 */
+.child-comment-item {
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+/* 마지막 대댓글은 하단 테두리 제거 */
+.child-comment-item:last-child {
+    border-bottom: none;
+}
+
+/* 대댓글 헤더 정보 */
+.child-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+/* 대댓글 작성자 이름 */
+.child-author {
+    font-weight: 500;
+    color: var(--accent-green);
+    margin: 0;
+    font-size: 14px;
+}
+
+/* 대댓글 작성일 */
+.child-date {
+    font-size: 11px;
+    color: var(--medium-gray);
+    margin: 0;
+}
+
+/* 대댓글 삭제 버튼 */
+.child-comment-delete-btn {
+    background: var(--error-red);
+    color: var(--white);
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: auto;
+}
+
+/* 대댓글 삭제 버튼 호버 효과 */
+.child-comment-delete-btn:hover {
+    background: #c82333;
+}
+
+/* 대댓글 내용 */
+.child-content {
+    color: var(--dark-gray);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 대댓글 작성 폼 */
+.reply-form {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;            /* 입력창과 버튼 사이 간격 */
+    align-items: flex-end; /* 하단 정렬 */
+}
+
+/* case 1: HTML로 직접 넣은 대댓글 입력창 */
+.reply-form textarea {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    resize: none !important;;              /* 크기 조절 비활성화 */
+    min-height: 60px;
+    max-height: 80px;          /* 최대 높이 제한 */
+    overflow-y: auto;          /* 스크롤 허용 */
+    font-size: 14px;
+    font-family: inherit;
+}
+
+/* case 2: JS로 동적으로 만든 대댓글 입력창 */
+textarea.edit-textarea {
+    resize: none !important;
+    min-height: 60px;
+    max-height: 80px;
+    overflow-y: auto;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
+}
+
+/* 대댓글 등록 버튼 */
+.reply-form button {
+    padding: 8px 16px;
+    background: var(--accent-green);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* 대댓글 등록 버튼 호버 효과 */
+.reply-form button:hover {
+    background: var(--primary-green);
+}
+
+/* 로그인하지 않은 경우 안내 문구 */
+.comment-form-disabled { /* HTML에 새로 추가된 클래스 */
+    text-align: center;
+    padding: 20px;
+    background: var(--light-gray);
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.comment-form-disabled p {
+    font-size: 15px;
+    color: var(--medium-gray);
+}
+
+.comment-form-disabled a {
+    color: var(--primary-green);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.comment-form-disabled a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   댓글 페이징 스타일
+   ========================= */
+
+/* 댓글 페이징 컨테이너 */
+.reply-pagination { /* 변경: .comment-pagination 대신 .reply-pagination 사용 */
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+/* 페이징 래퍼 */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* 페이지 버튼 공통 스타일 */
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    color: var(--dark-gray);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* 페이지 버튼 호버 효과 */
+.page-btn:hover {
+    background: var(--light-gray);
+    border-color: var(--primary-green);
+    transform: translateY(-1px);
+}
+
+/* 활성 페이지 버튼 */
+.page-btn.active {
+    background: var(--primary-green);
+    color: var(--white);
+    border-color: var(--primary-green);
+    font-weight: 600;
+}
+
+/* 활성 페이지 버튼 호버 효과 */
+.page-btn.active:hover {
+    background: var(--dark-green);
+    border-color: var(--dark-green);
+}
+
+/* 이전/다음 버튼 */
+.page-btn.prev-btn,
+.page-btn.next-btn {
+    font-weight: 600;
+    color: var(--primary-green);
+}
+
+/* 이전/다음 버튼 호버 효과 */
+.page-btn.prev-btn:hover,
+.page-btn.next-btn:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* 페이지 점선 표시 */
+.page-dots {
+    padding: 8px 4px;
+    color: var(--medium-gray);
+    font-weight: bold;
+    user-select: none;
+}
+
+/* 페이지 번호 버튼 */
+.page-number {
+    font-weight: 500;
+}
+
+/* 모바일에서 페이징 조정 */
+@media (max-width: 480px) {
+    .pagination {
+        gap: 4px;
+    }
+
+    .page-btn {
+        padding: 6px 8px;
+        font-size: 13px;
+        min-width: 32px;
+    }
+
+    .page-dots {
+        padding: 6px 2px;
+    }
+}
+
+/* 대댓글 버튼 컨테이너 */
+.reply-toggle-container {
+    margin-top: 10px;
+    margin-left: 20px; /* 들여쓰기 효과 */
+}
+
+/* 대댓글 보기/숨기기 버튼 */
+.reply-toggle-btn {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    color: #555;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.reply-toggle-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* 대댓글 영역 스타일 (선택사항) */
+.child-reply-section {
+    padding: 10px 0;
+    margin-left: 20px; /* 대댓글 들여쓰기 */
+    border-left: 2px solid #e0e0e0; /* 구분선 */
+}
+
+/* 대댓글 입력 폼 */
+.reply-form {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.reply-form textarea {
+    flex: 1; /* 남은 공간 모두 차지 */
+    resize: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 8px;
+    margin-right: 8px;
+}
+
+.reply-form button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5cb85c;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+.reply-form button:hover {
+    background-color: #4cae4c;
+}
+
+/* =========================
+   모달 창 스타일
+   ========================= */
+
+/* 모달 배경 오버레이 */
+.modal {
+    display: none;         /* 기본적으로 숨김 */
+    position: fixed;       /* 화면에 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
+    z-index: 10000;        /* 다른 요소보다 위에 */
+    align-items: center;
+    justify-content: center;
+}
+
+/* 모달 표시 상태 */
+.modal.show {
+    display: flex;
+}
+
+/* 모달 내용 컨테이너 */
+.modal-content {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;      /* 화면 높이의 80% */
+    overflow-y: auto;      /* 내용이 많을 때 스크롤 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out; /* 등장 애니메이션 */
+}
+
+/* 모달 등장 애니메이션 */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 모달 헤더 */
+.modal-header {
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝에 배치 */
+    align-items: center;            /* 세로 가운데 정렬 */
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 모달 제목 */
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+/* 모달 닫기 버튼 */
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--medium-gray);
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+/* 모달 닫기 버튼 호버 효과 */
+.modal-close:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+/* 모달 본문 */
+.modal-body {
+    padding: 25px;
+}
+
+/* 로그인 안내 */
+.login-notice {
+    text-align: center;
+    padding: 20px;
+}
+
+/* 로그인 안내 텍스트 */
+.login-notice p {
+    font-size: 16px;
+    color: var(--dark-gray);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+/* 로그인 액션 버튼들 */
+.login-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* 로그인 액션 버튼 스타일 조정 */
+.login-actions .contact-btn {
+    flex: none;
+    min-width: 120px;
+}
+
+/* 채팅 컨테이너 */
+.chat-container {
+    height: 400px;        /* 고정 높이 */
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+}
+
+/* 채팅 메시지 영역 */
+.chat-messages {
+    flex: 1;              /* 남은 공간 모두 차지 */
+    overflow-y: auto;     /* 메시지 많을 때 스크롤 */
+    padding: 15px;
+    background: var(--light-gray);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* 개별 메시지 */
+.message {
+    margin-bottom: 15px;
+    max-width: 80%;       /* 최대 너비 제한 */
+}
+
+/* 받은 메시지 */
+.message.received {
+    align-self: flex-start;
+}
+
+/* 보낸 메시지 */
+.message.sent {
+    align-self: flex-end;
+    margin-left: auto;    /* 우측 정렬 */
+}
+
+/* 메시지 내용 */
+.message-content {
+    background: var(--white);
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 보낸 메시지 내용 스타일 */
+.message.sent .message-content {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* 메시지 시간 */
+.message-time {
+    font-size: 11px;
+    color: var(--medium-gray);
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* 채팅 입력 영역 */
+.chat-input-area {
+    display: flex;
+    gap: 10px;            /* 입력창과 버튼 사이 간격 */
+}
+
+/* 채팅 입력창 */
+.chat-input {
+    flex: 1;              /* 남은 공간 모두 차지 */
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 25px;   /* 둥근 입력창 */
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+/* 채팅 입력창 포커스 효과 */
+.chat-input:focus {
+    border-color: var(--primary-green);
+}
+
+/* 채팅 전송 버튼 */
+.chat-send {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    border-radius: 25px;   /* 둥근 버튼 */
+    padding: 12px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* 채팅 전송 버튼 호버 효과 */
+.chat-send:hover {
+    background: var(--dark-green);
+}
+
+/* =========================
+   알림 메시지
+   ========================= */
+
+/* 알림 메시지 스타일 */
+.notification {
+    position: fixed;       /* 화면에 고정 */
+    top: 100px;
+    right: 20px;
+    background: var(--primary-green);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    z-index: 10000;        /* 가장 위에 표시 */
+    transform: translateX(400px); /* 처음에는 화면 밖에 */
+    transition: transform 0.3s ease;
+    max-width: 300px;
+    font-weight: 500;
+}
+
+/* 알림 메시지 표시 상태 */
+.notification.show {
+    transform: translateX(0); /* 화면 안으로 이동 */
+}
+
+/* 에러 알림 */
+.notification.error {
+    background: var(--error-red);
+}
+
+/* 성공 알림 */
+.notification.success {
+    background: var(--success-green);
+}
+
+/* 정보 알림 */
+.notification.info {
+    background: var(--primary-green);
+}
+
+/* =========================
+   반응형 디자인 (모바일 대응)
+   ========================= */
+
+/* 태블릿 크기 (768px 이하) */
+@media (max-width: 768px) {
+    /* 상세 래퍼를 세로 배치로 변경 */
+    .detail-container { /* 변경: .detail-wrapper 대신 .detail-container 사용 */
+        grid-template-columns: 1fr; /* 1열로 변경 */
+        gap: 30px;                  /* 간격 줄임 */
+        padding: 20px;              /* 패딩 줄임 */
+    }
+
+    /* 메인 이미지 높이 줄임 */
+    .main-image { /* 변경: .main-image-container 대신 .main-image 사용 */
+        height: 300px;
+    }
+
+    /* 썸네일 크기 줄임 */
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* 상품 제목 크기 줄임 */
+    .product-title {
+        font-size: 20px;
+    }
+
+    /* 액션 버튼을 세로로 배치 */
+    .product-actions, /* 변경: .action-buttons 대신 .product-actions 사용 */
+    .contact-buttons {
+        flex-direction: column;
+    }
+    .product-actions .dropdown-menu { /* 드롭다운 메뉴도 세로 배치 */
+        flex-direction: column;
+    }
+
+    /* 모달 크기 조정 */
+    .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+
+    /* 댓글 헤더 정보를 세로로 배치 */
+    .comment-header-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    /* 댓글 삭제 버튼 위치 조정 */
+    .comment-delete-btn {
+        margin-left: 0;
+        align-self: flex-start;
+    }
+
+    /* 인라인 설명 섹션 여백 조정 */
+    .description-section { /* 변경: .description-section-inline 대신 .description-section 사용 */
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /* 댓글 작성 폼을 모바일에서 세로로 배치 */
+    .comment-form {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .comment-form button {
+        align-self: flex-end;
+    }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+    /* 컨테이너 패딩 줄임 */
+    .container {
+        padding: 0 15px;
+    }
+
+    /* 섹션 패딩 줄임 */
+    .detail-section { /* 변경: .detail-main-section 대신 .detail-section 사용 */
+        padding: 20px 0 10px 0;
+    }
+
+    .comment { /* 변경: .comment-section 대신 .comment 사용 */
+        padding: 10px 0 20px 0;
+    }
+
+    /* 카드 패딩 줄임 */
+    .detail-container, /* 변경: .detail-wrapper 대신 .detail-container 사용 */
+    .comment { /* 변경: .comment-card 대신 .comment 사용 */
+        padding: 20px;
+    }
+
+    /* 작성자 카드 간격 줄임 */
+    .author-info { /* 변경: .author-card 대신 .author-info 사용 */
+        gap: 10px;
+        padding: 15px;
+    }
+
+    /* 대댓글 들여쓰기 줄임 */
+    .child-comments {
+        margin-left: 15px;
+    }
+
+    /* 댓글 헤더를 작은 화면에서 세로 배치 */
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+
+/* =========================
+   애니메이션 효과
+   ========================= */
+
+/* 페이드인 애니메이션 */
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* 페이드인 키프레임 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;                    /* 투명하게 시작 */
+        transform: translateY(30px);   /* 아래에서 시작 */
+    }
+    to {
+        opacity: 1;                    /* 완전히 보임 */
+        transform: translateY(0);      /* 원래 위치 */
+    }
+}
+
+/* 버튼 호버 효과 강화 */
+.contact-btn:hover,
+.action-btn:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   접근성 개선
+   ========================= */
+
+/* 포커스 표시 (키보드 사용자를 위해) */
+.action-btn:focus,
+.contact-btn:focus,
+.modal-close:focus,
+.comment-action-btn:focus {
+    outline: 2px solid var(--primary-green);
+    outline-offset: 2px;
+}
+
+/* 스크린 리더용 숨김 텍스트 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Footer */
+.footer {
+    background: var(--dark-green);
+    color: var(--white);
+    padding: 60px 0 20px;
+    margin-top: 80px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-section h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--light-green);
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 12px;
+}
+
+.footer-section ul li a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-section ul li a:hover {
+    color: var(--light-green);
+}
+
+.footer-section p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--light-green);
+}

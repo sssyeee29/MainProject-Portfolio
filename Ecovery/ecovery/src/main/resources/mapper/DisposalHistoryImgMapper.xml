@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    DisposalHistoryImgMapper.xml
+    - com.ecovery.mapper.DisposalHistoryImgMapper 인터페이스와 연결되는 MyBatis 매퍼 XML 파일
+    - 분리배출(DisposalHistoryImgVO) 관련 SQL 쿼리 정의
+-->
+<mapper namespace="com.ecovery.mapper.DisposalHistoryImgMapper">
+
+    <resultMap id="disposalHistoryImgMap" type="com.ecovery.domain.DisposalHistoryImgVO">
+        <id property="disposalImgId" column="disposal_img_id"/>
+        <result property="disposalHistoryId" column="disposal_history_id"/>
+        <result property="disposalImgName" column="disposal_img_name"/>
+        <result property="oriDisposalImgName" column="ori_disposal_img_name"/>
+        <result property="disposalImgUrl" column="disposal_img_url"/>
+        <!--<collection property="disposalInfo" resultMap="disposalInfoMap"/>-->
+    </resultMap>
+
+    <insert id="insertDisposalImg" parameterType="com.ecovery.domain.DisposalHistoryImgVO" useGeneratedKeys="true" keyProperty="disposalImgId">
+        insert into disposal_history_img(disposal_history_id, disposal_img_name, ori_disposal_img_name, disposal_img_url)
+        values (#{disposalHistoryId}, #{disposalImgName}, #{oriDisposalImgName}, #{disposalImgUrl})
+    </insert>
+
+    <select id="findDisposalImgByDisposalHistoryId" parameterType="long" resultMap="disposalHistoryImgMap">
+        select * from disposal_history_img where disposal_history_id = #{disposalHistoryId}
+    </select>
+
+</mapper>

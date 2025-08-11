@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>ECOVERY - 마이페이지</title>
+    <!-- 헤더/푸터 CSS 추가 -->
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <!-- 마이페이지 CSS -->
+    <link rel="stylesheet" th:href="@{/css/cart-style.css}">
+    <!-- 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<main id="mainContent">
+    <section class="cart-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="main.html">홈</a>
+                <span>></span>
+                <a href="#eco-market">에코마켓</a>
+                <span>></span>
+                <span class="current">장바구니</span>
+            </div>
+            <h1>🛒 장바구니</h1>
+            <p class="cart-subtitle">친환경 제품으로 지구를 지키는 쇼핑</p>
+        </div>
+    </section>
+
+    <section class="cart-content">
+        <div class="container">
+            <div class="cart-layout">
+                <div class="cart-items-section">
+                    <div class="cart-header-controls">
+                        <div class="select-all">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="selectAll" checked>
+                                <span class="checkmark"></span>
+                                전체선택 (<span id="selectedCount">3</span>개)
+                            </label>
+                        </div>
+                        <div class="cart-actions">
+                            <button class="btn-text" onclick="deleteSelected()">선택삭제</button>
+                            <button class="btn-text" onclick="addToWishlist()">관심상품</button>
+                        </div>
+                    </div>
+
+                    <div class="cart-items-list" id="cartItemsList">
+                        <div class="cart-item" th:each="cart : ${cartList}"
+                             th:attr="data-item-id=${cart.cartItemId}, data-unit-price=${cart.price}, data-real-item-id=${cart.itemId}">
+                            <div class="item-select">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" class="item-checkbox" checked>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div class="item-image">
+                                <img th:src="@{${cart.imgUrl}}" th:alt="${cart.itemNm}">
+                            </div>
+
+                            <div class="item-details">
+                                <div class="item-info">
+                                    <h3 class="item-name" th:text="${cart.itemNm}">상품명</h3>
+                                </div>
+
+                                <div class="item-controls">
+                                    <div class="quantity-controls">
+                                        <button class="qty-btn minus">-</button>
+                                        <input type="text"
+                                               th:id="'qty-' + ${cart.cartItemId}"
+                                               th:value="${cart.count}"
+                                               min="1"
+                                               th:attr="max=${cart.stockNumber}"
+                                               class="qty-input">
+                                        <button class="qty-btn plus">+</button>
+                                    </div>
+
+
+                                    <div class="item-price">
+                                        <span class="sale-price" th:text="${#numbers.formatInteger(cart.price * cart.count, 3, 'COMMA') + '원'}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="continue-shopping">
+                        <button class="btn-continue" onclick="goToMarket()">
+                            🛍️ 쇼핑 계속하기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="order-summary">
+                    <div class="summary-card">
+                        <h3>🧾 주문 요약</h3>
+
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <span>상품금액</span>
+                                <span id="subtotal">0원</span>
+                            </div>
+                            <div class="summary-row discount">
+                                <span>할인금액</span>
+                                <span id="discount">-0원</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>배송비</span>
+                                <span id="shipping">무료</span>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-row total">
+                                <span>결제금액</span>
+                                <span id="total">0원</span>
+                            </div>
+                        </div>
+
+                        <div class="eco-impact">
+                            <h4>🌍 환경 임팩트</h4>
+                            <div class="impact-item">
+                                <span>탄소발자국 절약</span>
+                                <span class="impact-value">0kg CO₂</span>
+                            </div>
+                            <div class="impact-item">
+                                <span>플라스틱 사용 절약</span>
+                                <span class="impact-value">0g</span>
+                            </div>
+                            <div class="impact-item">
+                                <span>적립 예정 포인트</span>
+                                <span class="impact-value">0P</span>
+                            </div>
+                        </div>
+
+                        <form id="orderForm" method="POST" action="/order/prepare">
+                            <div class="order-actions">
+                                <button type="button" class="btn-order" onclick="submitOrderForm()">
+                                    🛒 주문하기 (<span id="pricetotal">0원</span>)
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script th:src="@{/js/cart-script.js}"></script>
+
+<!-- JavaScript 파일을 찾을 수 없는 경우를 대비한 기본 스크립트 -->
+<!--<script th:src="@{/js/cart-script.js}" onerror="console.log('cart-script.js 파일을 찾을 수 없습니다.')"></script>-->
+
+<!-- 기본 기능을 위한 인라인 스크립트 -->
+<!--<script>
+    function deleteSelected() {
+        alert('선택된 상품이 삭제됩니다.');
+    }
+
+    function addToWishlist() {
+        alert('관심상품에 추가됩니다.');
+    }
+
+    function goToMarket() {
+        window.location.href = '/shop';
+    }
+
+    function submitOrderForm() {
+        alert('주문 페이지로 이동합니다.');
+        document.getElementById('orderForm').submit();
+    }
+
+    // 수량 조절 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        // 전체선택 체크박스
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedCount();
+            });
+        }
+
+        // 개별 체크박스
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedCount();
+            });
+        });
+
+        // 수량 조절 버튼
+        document.querySelectorAll('.qty-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.qty-input');
+                const isPlus = this.classList.contains('plus');
+                let currentValue = parseInt(input.value) || 1;
+
+                if (isPlus) {
+                    const max = parseInt(input.getAttribute('max')) || 999;
+                    if (currentValue < max) {
+                        input.value = currentValue + 1;
+                    }
+                } else {
+                    if (currentValue > 1) {
+                        input.value = currentValue - 1;
+                    }
+                }
+
+                // 가격 업데이트
+                updateCartTotals();
+            });
+        });
+
+        // 초기 로딩시 총액 계산
+        updateCartTotals();
+    });
+
+    function updateSelectedCount() {
+        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+        const selectedCount = document.getElementById('selectedCount');
+        if (selectedCount) {
+            selectedCount.textContent = checkedItems.length;
+        }
+    }
+
+    function updateCartTotals() {
+        let subtotal = 0;
+        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+
+        checkedItems.forEach(checkbox => {
+            const cartItem = checkbox.closest('.cart-item');
+            const unitPrice = parseInt(cartItem.getAttribute('data-unit-price')) || 0;
+            const qtyInput = cartItem.querySelector('.qty-input');
+            const quantity = parseInt(qtyInput.value) || 1;
+
+            subtotal += unitPrice * quantity;
+        });
+
+        // 화면에 업데이트
+        const subtotalElement = document.getElementById('subtotal');
+        const totalElement = document.getElementById('total');
+        const pricetotalElement = document.getElementById('pricetotal');
+
+        if (subtotalElement) subtotalElement.textContent = subtotal.toLocaleString() + '원';
+        if (totalElement) totalElement.textContent = subtotal.toLocaleString() + '원';
+        if (pricetotalElement) pricetotalElement.textContent = subtotal.toLocaleString() + '원';
+    }
+</script>-->
+</body>
+</html>

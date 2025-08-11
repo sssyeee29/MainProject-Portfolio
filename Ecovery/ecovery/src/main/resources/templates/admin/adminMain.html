@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>ECOVERY 관리자 - 통합 관리 시스템</title>
+
+    <!-- 외부 폰트 연결 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS 파일 연결 -->
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}">
+</head>
+<body>
+<!-- 공통 헤더 include -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- 메인 컨테이너 -->
+<main class="main-container">
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+        <h1 class="page-title">통합 관리 대시보드</h1>
+        <p class="page-description">
+            Ecovery 플랫폼의 모든 관리 기능을 한 번에 관리하세요
+            <span class="live-indicator">
+                <span class="pulse-dot"></span>
+                실시간 업데이트
+            </span>
+        </p>
+    </div>
+
+    <!-- 알림 메시지 -->
+    <div class="alert alert-info" th:if="${noticeMessage}">
+        <span>📢</span>
+        <div>
+            <strong>시스템 공지:</strong>
+            <span th:text="${noticeMessage}">오늘 오후 2시부터 1시간 동안 정기 점검이 예정되어 있습니다.</span>
+        </div>
+    </div>
+
+    <!-- 전체 현황 -->
+    <section class="dashboard-overview">
+        <h2 class="section-title">전체 현황</h2>
+        <div class="stats-grid">
+            <!-- 총 사용자 수 -->
+            <div class="stat-card primary">
+                <div class="card-icon">👥</div>
+                <div class="card-title">총 사용자</div>
+                <div class="card-value" th:data-count="${memberTotal ?: 0}" th:text="${memberTotal ?: 0}">0</div>
+                <div class="card-change">
+                    <span th:if="${dashboardStats?.userGrowthRate != null and dashboardStats.userGrowthRate > 0}">↗️</span>
+                    <span th:if="${dashboardStats?.userGrowthRate != null and dashboardStats.userGrowthRate < 0}">↘️</span>
+                    <span th:if="${dashboardStats?.userGrowthRate != null}" th:text="${dashboardStats.userGrowthRate > 0 ? '+' : ''} + ${dashboardStats.userGrowthRate} + '% 이번 주'">-</span>
+                </div>
+            </div>
+
+            <!-- 오늘 분리배출 -->
+            <div class="stat-card success">
+                <div class="card-icon">♻️</div>
+                <div class="card-title">총 분리배출</div>
+                <div class="card-value" th:data-count="${disposalHistoryTotal ?: 0}" th:text="${disposalHistoryTotal ?: 0}">0</div>
+                <div class="card-change">
+                    <span th:if="${dashboardStats?.wasteGrowthRate != null and dashboardStats.wasteGrowthRate > 0}">↗️</span>
+                    <span th:if="${dashboardStats?.wasteGrowthRate != null and dashboardStats.wasteGrowthRate < 0}">↘️</span>
+                    <span th:if="${dashboardStats?.wasteGrowthRate != null}" th:text="${dashboardStats.wasteGrowthRate > 0 ? '+' : ''} + ${dashboardStats.wasteGrowthRate} + '% 어제 대비'">-</span>
+                </div>
+            </div>
+
+            <!-- 활성 무료나눔 -->
+            <div class="stat-card warning">
+                <div class="card-icon">🤝</div>
+                <div class="card-title">분리배출 오인식</div>
+                <div class="card-value" th:data-count="${feedbackTotal ?: 0}" th:text="${dashboardStats?.activeSharingCount ?: 0}">0</div>
+                <div class="card-change">
+                    <span th:if="${dashboardStats?.sharingGrowthRate != null and dashboardStats.sharingGrowthRate > 0}">↗️</span>
+                    <span th:if="${dashboardStats?.sharingGrowthRate != null and dashboardStats.sharingGrowthRate < 0}">↘️</span>
+                    <span th:if="${dashboardStats?.sharingGrowthRate != null}" th:text="${dashboardStats.sharingGrowthRate > 0 ? '+' : ''} + ${dashboardStats.sharingGrowthRate} + '% 이번 주'">-</span>
+                </div>
+            </div>
+
+            <!-- 총 게시글 -->
+            <div class="stat-card info">
+                <div class="card-icon">📝</div>
+                <div class="card-title">환경톡톡</div>
+                <div class="card-value" th:data-count="${envTotal ?: 0}" th:text="${envTotal ?: 0}">0</div>
+                <div class="card-change">
+                    <span th:if="${dashboardStats?.postGrowthRate != null and dashboardStats.postGrowthRate > 0}">↗️</span>
+                    <span th:if="${dashboardStats?.postGrowthRate != null and dashboardStats.postGrowthRate < 0}">↘️</span>
+                    <span th:if="${dashboardStats?.postGrowthRate != null}" th:text="${dashboardStats.postGrowthRate > 0 ? '+' : ''} + ${dashboardStats.postGrowthRate} + '% 이번 주'">-</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 관리 섹션들 -->
+    <div class="management-container">
+        <!-- 첫 번째 행: 분리배출 관리, 나눔 관리 -->
+        <div class="management-row">
+            <!-- 1. 분리배출 관리 -->
+            <section class="management-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">♻️</span>
+                        분리배출 관리
+                    </h2>
+                    <a th:href="@{/disposal/history}" class="btn btn-primary">바로가기</a>
+                </div>
+
+                <!-- 분리배출 통계 -->
+                <div class="mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${avgAiConfidence != null ? avgAiConfidence + '%' : '99.7%'}">99.7%</span>
+                        <span class="mini-stat-label">정확도</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${feedbackTotal ?: 23}">23</span>
+                        <span class="mini-stat-label">오분류</span>
+                    </div>
+                </div>
+
+                <!-- 최근 분리배출 기록 -->
+                <div class="data-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>시간</th>
+                            <th>사용자</th>
+                            <th>폐기물 유형</th>
+                            <th>정확도</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="waste : ${recentWasteRecords}" th:if="${recentWasteRecords != null and not #lists.isEmpty(recentWasteRecords)}">
+                            <td th:text="${#temporals.format(waste.createdAt, 'HH:mm')}">14:23</td>
+                            <td th:text="${waste.nickname}">김○○</td>
+                            <td th:text="${waste.aiPrediction}">플라스틱 병</td>
+                            <td th:text="${waste.aiConfidence} + '%'">99.8%</td>
+                        </tr>
+                        <tr th:if="${recentWasteRecords == null or #lists.isEmpty(recentWasteRecords)}">
+                            <td colspan="4" class="text-center text-muted">최근 분리배출 기록이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2. 요류 내역 -->
+            <section class="management-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">🤝</span>
+                        오류 내역
+                    </h2>
+                    <a th:href="@{/feedback/history}" class="btn btn-primary">바로가기</a>
+                </div>
+
+                <!-- 오류 통계 -->
+                <div class="mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${feedbackTotal ?: 23}">89</span>
+                        <span class="mini-stat-label">총 신고량</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${feedbackAvgAiConfidence != null ? feedbackAvgAiConfidence + '%' : '99.7%'}">89</span>
+                        <span class="mini-stat-label">정확도</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${sharingStats?.pendingCount ?: 23}">23</span>
+                        <span class="mini-stat-label">처리량</span>
+                    </div>
+                </div>
+
+                <!-- 최근 나눔 목록 -->
+                <div class="data-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>시간</th>
+                            <th>사용자</th>
+                            <th>폐기물 유형</th>
+                            <th>정확도</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="sharing : ${recentSharingList}" th:if="${recentSharingList != null and not #lists.isEmpty(recentSharingList)}">
+                            <td th:text="${#temporals.format(sharing.createdAt, 'HH:mm')}">14:23</td>
+                            <td th:text="${sharing.nickname}">김○○</td>
+                            <td th:text="${sharing.aiPrediction}">플라스틱 병</td>
+                            <td th:text="${sharing.aiConfidence} + '%'">99.8%</td>
+                        </tr>
+                        <tr th:if="${recentWasteRecords == null or #lists.isEmpty(recentWasteRecords)}">
+                            <td colspan="4" class="text-center text-muted">최근 분리배출 기록이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- 두 번째 행: 회원 관리 -->
+        <div class="management-row single">
+            <!-- 3. 회원 관리 -->
+            <section class="management-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">👥</span>
+                        회원 관리
+                    </h2>
+                    <a th:href="@{/admin/member}" class="btn btn-primary">바로가기</a>
+                </div>
+
+                <!-- 회원 통계 -->
+                <div class="mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${memberTotal != null ? #numbers.formatInteger(memberTotal, 3, 'COMMA') : '15,247'}">15,247</span>
+                        <span class="mini-stat-label">총 회원</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${userStats?.activeCount != null ? #numbers.formatInteger(userStats.activeCount, 3, 'COMMA') : '15'}">13,892</span>
+                        <span class="mini-stat-label">일반 회원</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${userStats?.newMemberCount ?: 2}">145</span>
+                        <span class="mini-stat-label">관리자</span>
+                    </div>
+                </div>
+
+                <!-- 최근 가입 회원 -->
+                <div class="data-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>이메일</th>
+                            <th>가입일</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="user : ${recentUsers}" th:if="${recentUsers != null and not #lists.isEmpty(recentUsers)}">
+                            <td th:text="${user.nickname}">김환경</td>
+                            <td th:text="${user.email}">kim@example.com</td>
+                            <td th:text="${user.createdAt}">2024-07-21</td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${user.role == 'ACTIVE' ? 'status-active' : 'status-inactive'}"
+                                      th:text="${user.role == 'ACTIVE' ? '활성' : '활성'}">활성</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" th:onclick="|editUser(${user.memberId})|">수정</button>
+                                <button class="btn btn-sm"
+                                        th:classappend="${user.role == 'ACTIVE' ? 'btn-danger' : 'btn-success'}"
+                                        th:onclick="|toggleUserStatus(${user.memberId})|"
+                                        th:text="${user.role == 'ACTIVE' ? '정지' : '활성화'}">정지</button>
+                            </td>
+                        </tr>
+                        <tr th:if="${recentUsers == null or #lists.isEmpty(recentUsers)}">
+                            <td colspan="5" class="text-center text-muted">최근 가입 회원이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- 세 번째 행: 게시판 관리 (환경톡톡, 공지사항) -->
+        <div class="management-row board-row">
+            <!-- 4-1. 환경톡톡 게시판 -->
+            <section class="management-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">💬</span>
+                        환경톡톡
+                    </h2>
+                    <a th:href="@{/env/list}" class="btn btn-primary">바로가기</a>
+                </div>
+
+                <!-- 환경톡톡 통계 -->
+                <div class="mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${envTotal ?: 2456}">2,456</span>
+                        <span class="mini-stat-label">총 게시글</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${envTalkStats?.todayPosts ?: 45}">45</span>
+                        <span class="mini-stat-label">공지사항</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${envTalkStats?.reportedPosts ?: 12}">12</span>
+                        <span class="mini-stat-label">신고 게시글</span>
+                    </div>
+                </div>
+
+                <!-- 최근 환경톡톡 게시글 -->
+                <div class="data-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="envTalk : ${recentEnvTalks}" th:if="${recentEnvTalks != null and not #lists.isEmpty(recentEnvTalks)}">
+                            <td th:text="${envTalk.title}">시스템 점검 안내</td>
+                            <td th:text="${envTalk.nickname}">관리자</td>
+                            <td th:text="${#temporals.format(envTalk.createdAt, 'yyyy-MM-dd')}">2024-07-21</td>
+                            <td th:text="${envTalk.viewCount != null ? #numbers.formatInteger(envTalk.viewCount, 3, 'COMMA') : '1,234'}">1,234</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" th:onclick="|editEnvTalk(${envTalk.envId})|">수정</button>
+                                <button class="btn btn-sm btn-danger" th:onclick="|deleteEnvTalk(${envTalk.envId})|">삭제</button>
+                            </td>
+                        </tr>
+                        <tr th:if="${recentEnvTalks == null or #lists.isEmpty(recentEnvTalks)}">
+                            <td colspan="5" class="text-center text-muted">최근 환경톡톡 게시글이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4-2. 공지사항 -->
+            <section class="management-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">📢</span>
+                        공지사항
+                    </h2>
+                    <a th:href="@{/notice/list}" class="btn btn-primary">바로가기</a>
+                </div>
+
+                <!-- 공지사항 통계 -->
+                <div class="mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${noticeTotal ?: 2456}">2,456</span>
+                        <span class="mini-stat-label">총 게시글</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${noticeStats?.todayPosts ?: 45}">45</span>
+                        <span class="mini-stat-label">공지사항</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${noticeStats?.reportedPosts ?: 12}">12</span>
+                        <span class="mini-stat-label">신고 게시글</span>
+                    </div>
+                </div>
+
+                <!-- 최근 공지사항 -->
+                <div class="data-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="notice : ${recentNotices}" th:if="${recentNotices != null and not #lists.isEmpty(recentNotices)}">
+                            <td th:text="${notice.title}">시스템 점검 안내</td>
+                            <td th:text="${notice.nickname}">관리자</td>
+                            <td th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">2024-07-21</td>
+                            <td th:text="${notice.viewCount != null ? #numbers.formatInteger(notice.viewCount, 3, 'COMMA') : '1,234'}">1,234</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" th:onclick="|editNotice(${notice.noticeId})|">수정</button>
+                                <button class="btn btn-sm btn-danger" th:onclick="|deleteNotice(${notice.noticeId})|">삭제</button>
+                            </td>
+                        </tr>
+                        <tr th:if="${recentNotices == null or #lists.isEmpty(recentNotices)}">
+                            <td colspan="5" class="text-center text-muted">최근 공지사항이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<!-- 공통 푸터 include -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JavaScript 파일 연결 -->
+<script th:src="@{/js/admin-script.js}"></script>
+</body>
+</html>

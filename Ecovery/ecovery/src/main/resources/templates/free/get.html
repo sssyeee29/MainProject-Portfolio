@@ -1,0 +1,220 @@
+<!--
+ * 무료나눔 게시판 상세페이지
+ * 게시글의 상세 정보, 이미지, 댓글 등을 확인하고 관리할 수 있는 화면
+ *
+ * [프론트엔드 기능 - by eunji]
+ * - 상품 대표 이미지 및 썸네일 이미지 출력 영역 구성
+ * - 상품 정보(제목, 카테고리, 상태, 지역, 등록일 등) UI 표시
+ * - 작성자/관리자일 경우 수정/삭제 버튼 표시
+ * - 상세 설명 영역 분리 구성
+ * - 댓글 입력, 정렬 드롭다운, 댓글 목록 출력 및 페이징 UI 구성
+ * - free-sharing-detail.js를 통해 비동기 방식으로 상세 정보 및 댓글 렌더링
+ * - CSS 스타일링은 free-sharing-detail.css에서 담당
+ *
+ * [백엔드 기능 - by yeonsu]
+ * - 게시글 정보 전달: board, loginMemberNickname, loginMemberRole 등
+ * - 로그인 여부 판단 후 댓글 작성 폼 또는 로그인 안내 출력 (Thymeleaf 조건문)
+ * - 작성자 또는 관리자일 경우에만 수정/삭제 버튼 표시 (Thymeleaf 조건문 + Spring Security)
+ * - 댓글 정렬 및 페이징은 JS에서 fetch 호출로 처리, 로그인 정보는 window.loginUserId 등으로 JS에 전달
+ * - 레이아웃 템플릿(layout1.html) 및 헤더 fragment(header.html) 적용
+ * - 게시글 상세보기에서 목록 페이지로 돌아갈 때 현재 페이지 번호 전달 (th:href="@{/free/list(page=${page})}")
+ *
+ * @author   : eunji, yeonsu
+ * @fileName : detail.html
+ * @since    : 250728
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='무료나눔'">
+    <title>무료나눔</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/free-sharing-detail.css}">
+    </th:block>
+</head>
+
+<th:block layout:fragment="header" th:replace="~{fragments/header :: header}"></th:block>
+
+<!-- 메인 내용 -->
+<div layout:fragment="content">
+
+    <!-- 현재 위치 표시 (빵부스러기) -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a th:href="@{/}">🏠</a>
+                <span>></span>
+                <a th:href="@{/free/list}">무료나눔</a>
+                <span>></span>
+                <span class="current">상세보기</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- 상세보기 내용 -->
+    <section class="detail-section">
+        <div class="container">
+            <!-- 🔥 수정: 목록으로 돌아가는 버튼 추가 -->
+            <div class="back-to-list">
+                <a th:href="@{/free/list(page=${page})}" class="back-btn">
+                    <span class="icon">←</span>
+                    목록보기
+                </a>
+            </div>
+            <div class="detail-container">
+                <!-- 상품 이미지 섹션 -->
+                <div class="image-section">
+                    <!-- 메인 이미지 -->
+                    <div class="main-image">
+                        <!-- src는 JS에서 설정하므로 비워둠 -->
+                        <img id="mainImage" alt="대표 이미지">
+                    </div>
+                    <!-- 썸네일 이미지 컨테이너 -->
+                    <div class="thumbnail-images" id="thumbnailImages">
+                        <!-- JS에서 이미지 썸네일 <img> 요소들을 여기에 동적으로 삽입 -->
+                    </div>
+                </div>
+
+                <!-- 상품 정보 섹션 -->
+                <div class="info-section">
+                    <!-- 상품 헤더 (제목과 관리 버튼) -->
+                    <div class="product-header">
+                        <div class="product-title-area">
+                            <!-- 상태 배지 -->
+                            <div class="status-badge" id="itemStatus" th:text="${board.dealStatus == T(com.ecovery.constant.DealStatus).ONGOING} ? '나눔중' : '나눔 완료'">나눔 상태</div>
+                            <!-- 상품 제목 -->
+                            <h1 class="product-title" id="itemTitle">제목</h1>
+                        </div>
+
+                        <!-- 작성자 정보 -->
+                        <div class="author-info">
+                            <div class="author-details">
+                                <div class="author-name" id="authorNickname">작성자</div>
+                                <div class="author-meta">
+                                    <span class="view-count" id="viewCount">👀 0</span>
+                                    <span class="post-date" id="createdAt">방금 전</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 상품 상세 정보 -->
+                        <div class="product-details">
+                            <div class="detail-row">
+                                <span class="detail-label">카테고리</span>
+                                <span class="detail-value" id="detailCategory">가구</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">제목</span>
+                                <span class="detail-value" id="detailTitle">나눔 제목</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">작성자</span>
+                                <span class="detail-value" id="detailAuthor">작성자 닉네임</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">등록일</span>
+                                <span class="detail-value" id="detailDate">2025.07.29</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">상품 상태</span>
+                                <span class="detail-value" id="detailCondition">상 (매우좋음)</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">나눔 지역</span>
+                                <span class="detail-value">
+                                <span id="regionGu">강남구</span>
+                                <span id="regionDong">역삼동</span>
+                            </span>
+                            </div>
+                        </div>
+
+                        <!-- 관리 버튼 (수정된 위치) -->
+                        <!-- STEP 1: 로그인한 사용자만 관리 버튼 영역 진입 -->
+                        <div class="product-actions"
+                             th:if="${#authentication.authenticated}"
+                             id="productActions">
+
+                            <!-- STEP 2: 작성자 또는 관리자일 경우에만 버튼 표시 -->
+                            <!-- 수정/삭제 버튼은 로그인한 사용자이면서 작성자 또는 관리자일 때만 표시 -->
+                            <div th:if="${loginMemberNickname != null and (loginMemberNickname == board.nickname or loginMemberRole?.name() == 'ADMIN')}" class="dropdown">
+                                <div class="dropdown-menu" id="dropdownMenu">
+                                    <!-- 수정하기 버튼 -->
+                                    <a th:href="@{'/free/modify/' + ${board.freeId}}" class="action-btn edit-btn" id="editBtn">
+                                        <span class="icon">✏️</span>
+                                        수정
+                                    </a>
+                                    <!-- 삭제하기 버튼 -->
+                                    <button class="action-btn delete-btn" id="deleteBtn">
+                                        <span class="icon">🗑️</span>
+                                        삭제
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔥 수정: 상세 설명 섹션을 별도로 분리하여 이미지+정보 아래로 이동 -->
+                <div class="description-section">
+                    <h2>📝 상세 설명</h2>
+                    <div class="description-content" id="detailContent">
+                        <!-- JS에서 내용이 설정됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 💬 댓글 전체 블록은 로그인 여부 관계없이 항상 렌더링 -->
+                <div class="comments">
+                    <!-- 댓글 헤더: 제목과 정렬 드롭다운을 양쪽 끝에 배치 -->
+                    <div class="comment-header">
+                        <h2>💬 댓글</h2>
+                        <div class="comment-sort">
+                            <label for="sortSelect">정렬:</label>
+                            <select id="sortSelect">
+                                <option value="recent">최신순</option>
+                                <option value="oldest">등록순</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 댓글 작성 폼 헤더: 입력창과 등록 버튼을 양쪽 끝에 배치 -->
+                    <div th:if="${loginMemberNickname != null}" class="comment-form">
+                        <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
+                        <button id="submitCommentBtn">등록</button>
+                    </div>
+
+                    <!-- 댓글 목록은 로그인 여부 관계없이 항상 보여야 함 -->
+                    <div class="comment-list" id="commentList">
+                        <!-- 댓글 아이템들이 JavaScript로 렌더링됨 -->
+                    </div>
+
+                    <!-- ✅ 여기에 페이징 영역 추가 -->
+                    <div class="reply-pagination" id="pagination"></div>
+
+                    <!-- 로그인하지 않은 경우 안내 문구 -->
+                    <div th:if="${loginMemberNickname == null}" class="comment-form-disabled">
+                        <p>✏️ 댓글을 작성하려면 <a th:href="@{/member/login}">로그인</a> 해주세요.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<th:block layout:fragment="script">
+    <!-- 로그인 정보 전달 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.loginUserId = [[${loginMember?.memberId}]];
+        window.loginUserRole = [[${loginMember?.role?.name()}]];
+        /*]]>*/
+    </script>
+
+    <!-- 메인 JS 파일 -->
+    <script th:src="@{/js/free-sharing-detail.js}"></script>
+</th:block>
+</html>

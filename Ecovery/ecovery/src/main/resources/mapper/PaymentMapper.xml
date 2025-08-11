@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+* 에코마켓 결제 Mapper.xml
+* @author : 오세희
+* @fileName : PaymentMapper.xml
+* @since : 250725
+* @history
+     - 250725 | sehui | 결제내역 저장 기능 추가
+     - 250805 | sehui | payment_key 오타 수정
+-->
+
+<mapper namespace="com.ecovery.mapper.PaymentMapper">
+
+    <!-- PaymentVO 매핑 -->
+    <resultMap id="PaymentResultMap" type="com.ecovery.domain.PaymentVO">
+        <id property="paymentId" column="payment_id" />
+        <result property="orderId" column="order_id" />
+        <result property="orderUuid" column="order_uuid" />
+        <result property="memberId" column="member_id" />
+        <result property="paymentKey" column="payment_key" />
+        <result property="payMethod" column="pay_method" />
+        <result property="payAmount" column="pay_amount" />
+        <result property="payStatus" column="pay_status" />
+        <result property="paidAt" column="paid_at" />
+    </resultMap>
+
+    <!-- 결제내역 저장 -->
+    <insert id="insertPayment" parameterType="com.ecovery.domain.PaymentVO" useGeneratedKeys="true" keyProperty="paymentId">
+        insert into payment (order_id, order_uuid, member_id, payment_key, pay_method, pay_amount, pay_status, paid_at)
+        values (#{orderId}, #{orderUuid}, #{memberId}, #{paymentKey}, #{payMethod}, #{payAmount}, #{payStatus}, NOW())
+    </insert>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    장바구니 Mapper.xml
+    * 장바구니 ID 찾기, 장바구니 없을 경우 생성
+    @author : 방희경
+    @fileName : CartMapper.xml
+    @since : 250721
+-->
+
+<mapper namespace="com.ecovery.mapper.CartMapper">
+    <!-- 회원 ID로 장바구니 ID 조회 -->
+    <select id="findCartIdByMemberId" parameterType="long" resultType="long">
+        select cart_id
+        from cart
+        where member_id = #{memberid}
+    </select>
+
+    <!-- 장바구니가 없을 경우 생성 -->
+    <!-- useGeneratedKeys="true": cart_id 자동 증가값을 VO 객체에 자동으로 주입 -->
+    <!-- keyProperty="cartId": cartVO.setCartId() 자동 호출됨 -->
+    <insert id="insertCart" parameterType="com.ecovery.domain.CartVO" useGeneratedKeys="true" keyProperty="cartId">
+        insert into cart(member_id, created_at)
+        values (#{memberid}, NOW())
+    </insert>
+</mapper>

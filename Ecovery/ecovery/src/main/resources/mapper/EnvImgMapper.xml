@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    환경톡톡 이미지 Mapper.xml
+    이미지 등록, 조회, 삭제 기능 정의
+    @author : yukyeong
+    @fileName : EnvImgMapper.xml
+    @since : 250726
+    @history
+     - 250726 | yukyeong | 이미지 등록/조회/삭제 쿼리 작성
+     - 250801 | yukyeong | 이미지 URL 기반 삭제 쿼리 deleteByImgUrl 추가
+     - 250805 | yukyeong | 본문 이미지 중복 등록 방지를 위한 existsByImgUrlAndEnvId 쿼리 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.EnvImgMapper">
+
+    <!--
+        이미지 등록 쿼리
+        · 대상 테이블 : env_img (환경톡톡 이미지)
+        · 입력 컬럼 : env_id, img_name, ori_img_name, img_url
+        · created_at은 DB에서 자동 설정 (DEFAULT CURRENT_TIMESTAMP)
+        · 용도 : 게시글에 업로드된 이미지 정보를 DB에 저장
+    -->
+    <insert id="insert" parameterType="com.ecovery.domain.EnvImgVO" useGeneratedKeys="true" keyProperty="envImgId">
+        INSERT INTO env_img (
+            env_id, img_name, ori_img_name, img_url
+        ) VALUES (
+                     #{envId}, #{imgName}, #{oriImgName}, #{imgUrl}
+                 )
+    </insert>
+
+    <!--
+        이미지 목록 조회 쿼리
+        · 대상 테이블 : env_img
+        · 조건 : env_id (게시글 ID)
+        · 정렬 기준 : env_img_id 오름차순
+        · 용도 : 특정 게시글에 첨부된 이미지 전체 조회
+    -->
+    <select id="getEnvImgList" parameterType="long" resultType="com.ecovery.domain.EnvImgVO">
+        SELECT
+            env_img_id,
+            env_id,
+            img_name,
+            ori_img_name,
+            img_url,
+            created_at
+        FROM env_img
+        WHERE env_id = #{envId}
+        ORDER BY env_img_id
+    </select>
+
+    <!--
+    이미지 단건 조회 쿼리
+    · 대상 테이블 : env_img
+    · 조건 : env_img_id (PK)
+    · 용도 : 개별 이미지 정보 조회 (삭제 시 파일 경로 확인용 등)
+    -->
+    <select id="getById" parameterType="long" resultType="com.ecovery.domain.EnvImgVO">
+        SELECT
+            env_img_id,
+            env_id,
+            img_name,
+            ori_img_name,
+            img_url,
+            created_at
+        FROM env_img
+        WHERE env_img_id = #{envImgId}
+    </select>
+
+    <!--
+        이미지 단건 삭제 쿼리
+        · 대상 테이블 : env_img
+        · 조건 : env_img_id (PK)
+        · 용도 : 개별 이미지 삭제 (게시글은 유지)
+    -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM env_img
+        WHERE env_img_id = #{envImgId}
+    </delete>
+
+    <!--
+        게시글 전체 이미지 삭제 쿼리
+        · 대상 테이블 : env_img
+        · 조건 : env_id (게시글 ID)
+        · 용도 : 게시글 수정 시 기존 이미지 전체 삭제
+    -->
+    <delete id="deleteByEnvId" parameterType="long">
+        DELETE FROM env_img
+        WHERE env_id = #{envId}
+    </delete>
+
+    <!--
+        이미지 URL 기반 삭제 쿼리
+        · 대상 테이블 : env_img
+        · 조건 : img_url (이미지 URL 문자열)
+        · 용도 : 본문에 삽입된 <img src="..."> 이미지 삭제 시 사용
+        · 사용처 : 본문 이미지 삭제 기능 (deleteContentImg, deleteByImgUrl 등)
+    -->
+    <delete id="deleteByImgUrl" parameterType="string">
+        DELETE FROM env_img
+        WHERE img_url = #{imgUrl}
+    </delete>
+
+    <!--
+        이미지 중복 여부 확인 쿼리
+        · 대상 테이블 : env_img
+        · 조건 : env_id + img_url 조합
+        · 반환 : 해당 이미지가 해당 게시글에 존재하는지 여부 (boolean)
+        · 용도 : 본문 이미지 등록 시 중복 insert 방지
+        · 사용처 : EnvImgServiceImpl.registerContentImgs() 등
+    -->
+    <select id="existsByImgUrlAndEnvId" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM env_img
+        WHERE env_id = #{envId}
+          AND img_url = #{imgUrl}
+    </select>
+
+</mapper>

@@ -1,0 +1,245 @@
+<!--
+공지사항 수정 페이지
+운영자가 기존 공지사항 내용을 수정할 수 있는 입력 폼 제공
+Toast UI Editor 기반 본문 수정, 카테고리/제목 수정, 미리보기, 통계 및 작성 가이드 사이드바 포함
+@author : eunji
+@fileName : modify.html
+@since : 250721
+@history
+    - 250721 | yukyeong | 단순 테스트용 글쓰기 폼 임시 작성
+    - 250802 | yukyeong | 공지사항 수정 페이지로 리팩토링:
+                          - 기존 글 정보 바인딩(title, category, content)
+                          - notice-modify.js 및 초기 데이터 세팅 로직 반영
+                          - submit 버튼 텍스트 및 모달 라벨 수정
+                          - <main> 태그 제거 및 레이아웃 간격 조정
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='공지사항 - 수정하기'">
+    <title>공지사항</title>
+    <th:block layout:fragment="css">
+        <!-- Toast UI Editor 스타일 CDN 추가 -->
+        <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+        <link rel="stylesheet" th:href="@{/css/notice-style.css}">
+        <link rel="stylesheet" th:href="@{/css/notice-write-style.css}">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 콘텐츠 -->
+<div layout:fragment="content" class="fade-in">
+    <!-- 메인 콘텐츠 영역 -->
+        <div class="container">
+            <!-- 페이지 헤더 -->
+            <section class="page-header fade-in">
+                <div class="page-header-content">
+                    <h1>✍️ 공지사항 수정하기</h1>
+                    <p>Ecovery 사용자들에게 전달할 중요한 소식을 수정하세요</p>
+                </div>
+            </section>
+
+            <!-- 공지사항 작성 폼 컨테이너 -->
+            <div class="write-container fade-in">
+                <!-- 작성 폼 메인 영역 -->
+                <div class="write-main">
+                    <!-- 타임리프 폼 태그 시작 -->
+                    <form id="modifyForm" class="write-form" enctype="multipart/form-data">
+
+                        <!-- 폼 헤더 -->
+                        <div class="form-header">
+                            <h2>📝 공지사항 수정하기</h2>
+                            <div class="form-actions-top">
+                                <!-- 미리보기 버튼 -->
+                                <button type="button" class="btn btn-secondary" id="previewBtn">
+                                    📄 미리보기
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 기본 정보 섹션 -->
+
+                        <!-- 카테고리 및 중요도 설정 -->
+                        <div class="form-row">
+                            <!-- 카테고리 선택 -->
+                            <div class="form-group half-width">
+                                <label for="category" class="form-label required">
+                                    🏷️ 카테고리
+                                </label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="">카테고리를 선택하세요</option>
+                                    <!-- JS로 동적 렌더링 -->
+                                </select>
+                                <span class="error-message" id="categoryError"></span>
+                            </div>
+                        </div>
+
+                        <!-- 제목 입력 -->
+                        <div class="form-group">
+                            <label for="title" class="form-label required">📌 제목</label>
+                            <input type="text" id="title" name="title" class="form-input"
+                                   th:value="${notice.title}"
+                                   placeholder="공지사항 제목을 입력하세요" required maxlength="255">
+                            <div class="char-counter">
+                                <span id="titleCounter">0</span>/255
+                            </div>
+                            <span class="error-message" id="titleError"></span>
+                        </div>
+
+
+                        <!-- 내용 작성 섹션 -->
+                        <div class="form-section">
+                            <label class="form-label" for="editor">📝 내용 작성</label>
+                            <!-- Toast UI Editor가 들어갈 영역 (기존 클래스 유지) -->
+                            <div id="editor" class="form-textarea content-editor"></div>
+                            <!-- 실제 form 전송용 hidden input -->
+                            <input type="hidden" name="content" id="hiddenContent" />
+                            <!-- 글자 수 카운트 유지 -->
+                            <div class="char-count"><span id="contentCount">0</span>/2000</div>
+                            <span class="error-message" id="contentError"></span>
+                        </div>
+
+
+                        <!-- 폼 하단 액션 버튼들 -->
+                        <div class="form-actions">
+                            <div class="action-left">
+                                <a onclick="location.href='/notice/list'" class="btn btn-outline">
+                                    ← 목록으로
+                                </a>
+                            </div>
+                            <div class="action-right">
+                                <button type="button" class="btn btn-secondary" id="resetBtn">
+                                    🔄 초기화
+                                </button>
+                                <button type="submit" name="action" value="publish" class="btn btn-primary" id="publishBtn">
+                                    📢 수정하기
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 사이드바 -->
+                <div class="write-sidebar fade-in">
+                    <!-- 작성 가이드 -->
+                    <div class="sidebar-card">
+                        <h3>📖 작성 가이드</h3>
+                        <div class="guide-content">
+                            <div class="guide-item">
+                                <strong>📌 제목 작성 팁</strong>
+                                <p>명확하고 간결한 제목을 작성하세요. 이모지를 활용하면 더욱 눈에 띕니다.</p>
+                            </div>
+                            <div class="guide-item">
+                                <strong>📝 내용 작성 팁</strong>
+                                <p>중요한 내용은 굵게 표시하고, 목록을 활용하여 가독성을 높이세요.</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- 통계 정보 -->
+                    <div class="sidebar-card">
+                        <h3>📊 통계 정보</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">128</span>
+                                <span class="stat-label">전체 공지</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">3</span>
+                                <span class="stat-label">오늘 발행</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 빠른 액션 -->
+                    <div class="sidebar-card">
+                        <h3>⚡ 빠른 액션</h3>
+                        <div class="quick-actions">
+                            <a href="#" class="quick-btn">
+                                📋 공지 관리
+                            </a>
+                            <a href="#" class="quick-btn">
+                                📈 통계 보기
+                            </a>
+                            <a href="#" class="quick-btn">
+                                ⚙️ 설정
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="previewModal" style="display: none;">
+        <div class="modal-content preview-modal">
+            <div class="modal-header">
+                <h3>📄 미리보기</h3>
+                <button class="modal-close" onclick="closePreview()">×</button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Preview content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePreview()">닫기</button>
+                <button class="btn btn-primary" onclick="submitPost()">수정하기</button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/notice-write-script.js}"></script>
+    <script th:src="@{/js/notice-modify.js}"></script>
+
+    <!-- Toast UI Editor JS CDN 추가 -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
+
+    <!-- 타임리프 변수 및 에디터 설정 -->
+    <script th:inline="javascript">
+        const noticeId = /*[[${notice.noticeId}]]*/ 0;
+        const noticeCategory = /*[[${notice.category}]]*/ null;
+        const initialContent = /*[[${notice.content}]]*/ "";
+
+        window.noticeId = noticeId;
+        window.noticeCategory = noticeCategory;
+        window.initialContent = initialContent;
+
+        var maxFileSize = /*[[${maxFileSize}]]*/ 10485760; // 10MB
+        var maxFileCount = /*[[${maxFileCount}]]*/ 5;
+
+        // 폼 검증 규칙
+        var validationRules = {
+            title: {
+                required: true,
+                maxLength: 255,
+                message: '제목을 입력해주세요 (최대 255자)'
+            },
+            content: {
+                required: true,
+                maxLength: 2000,
+                message: '내용을 입력해주세요 (최대 2000자)'
+            },
+            categoryId: {
+                required: true,
+                message: '카테고리를 선택해주세요'
+            }
+        };
+
+
+        // form 제출 전 에디터 값 설정
+        function beforeSubmit() {
+            document.getElementById("hiddenContent").value = editor.getHTML();
+            document.getElementById("modifyForm").submit();
+        }
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!--
+    에코마켓 상품 목록 페이지
+    @author : sehui
+    @fileName : eco-market.html
+    @since : 250729
+    @history
+     - 250729 | sehui | 에코마켓 상품 목록 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250808 | sehui | 헤더 둥근 모서리 및 검색창 개선, 페이드인 효과 추가
+     - 250808 | sehui | 글쓰기 버튼 위치 조정 - 검색창과 같은 라인 배치
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='에코마켓'">
+    <title>에코마켓</title>
+
+    <!-- 추가 css -->
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" href="/css/header.css">
+        <link rel="stylesheet" href="/css/footer.css">
+        <link rel="stylesheet" th:href="@{/css/eco-market.css}">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 fragment -->
+<div layout:fragment="content">
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+        <!-- 히어로 섹션 - 페이지 상단 소개 영역 -->
+        <section class="hero-section fade-in">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>🛒 에코마켓</h1>
+                    <p>환경을 생각하는 중고거래로 지속가능한 소비를 실현하세요</p>
+
+                    <!-- 통계 표시 영역 - 서버에서 전달받은 통계 데이터 -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">2,847</span>
+                            <span class="stat-label">오늘 거래 완료</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">34,521</span>
+                            <span class="stat-label">총 거래 건수</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">12,394</span>
+                            <span class="stat-label">활성 판매자</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 필터 및 액션 섹션 -->
+        <section class="filter-section fade-in">
+            <div class="container">
+                <!-- 필터 헤더 - 제목만 표시 -->
+                <div class="filter-header">
+                    <div class="filter-left">
+                        <h2>우리 동네 에코마켓</h2>
+                    </div>
+                </div>
+
+                <!-- 필터 컨트롤 영역 - 폼으로 감싸서 서버에 전송 -->
+                <form th:action="@{/eco-market}" method="get" id="filterForm">
+                    <div class="filter-controls">
+                        <!-- 통합 검색 영역 -->
+                        <div class="search-container">
+                            <select id="searchType" name="searchType" class="search-select">
+                                <option value="">전체</option>
+                                <option value="itemNm">상품명</option>
+                                <option value="category">카테고리</option>
+                            </select>
+                            <input type="text" id="searchInput" name="keyword" class="search-input"
+                                   placeholder="원하는 상품을 검색하세요...">
+                            <button type="submit" class="search-btn">🔍</button>
+                        </div>
+
+                        <!-- 액션 버튼 영역 -->
+                        <div class="filter-actions">
+                            <a th:href="@{/eco/new}"
+                               class="btn btn-primary" id="addItemBtn"
+                               sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                                <span>+</span> 상품 등록
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- 상품 목록 섹션 -->
+        <section class="items-section fade-in">
+            <div class="container">
+                <!-- 상품 목록 헤더 -->
+                <div class="items-header">
+                    <div class="items-count">
+                        <!-- 검색 결과 개수 표시 -->
+                        <span id="totalItems">총 67개</span>의 상품
+                    </div>
+                </div>
+
+                <!-- 상품 그리드 영역 -->
+                <div class="items-grid" id="itemsGrid">
+                    <!-- 상품 카드들 JS에서 비동기로 렌더링 -->
+                </div>
+
+                <!-- 페이지네이션 영역 -->
+                <div class="pagination" id="pagination">
+                    <!-- JS에서 동적으로 구성 -->
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- 추가 JS -->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/eco-market.js}"></script>
+</th:block>
+</body>
+</html>

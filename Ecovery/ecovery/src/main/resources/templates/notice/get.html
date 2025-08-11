@@ -1,0 +1,250 @@
+<!--
+GreenCycle 환경톡톡 게시글 상세보기
+게시글 본문, 작성자, 작성일 등 상세 내용을 보여주는 페이지
+작성자 본인 또는 관리자만 수정 버튼이 노출됨
+@author : eunji
+@fileName : get.html
+@since : 250721
+@history
+    - 250721 | yukyeong | 단건 조회, 수정버튼 출력을 확인하기 위한 임시 뷰 최조 작성, 수정 버튼은 작성자 또는 관리자만 볼 수 있도록 설정
+    - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용
+    - 250801 | yukyeong | 공지사항 상세 레이아웃 전면 개편:
+                          - 페이지 레이아웃을 환경톡톡 스타일로 통일
+                          - 헤드 섹션(타이틀/서브타이틀/경로) 추가
+                          - notice-detail-layout, notice-article 등 구조 정비
+                          - 관리자 전용 버튼 섹션(admin-actions) 개선
+                          - 공지사항 조회 전용 notice-get.js 연동
+    - 250802 | yukyeong | 작성자 정보(author-info) 영역 구조 개선 : 아바타, 작성자명, 권한(role) 요소 분리 및 ID 지정
+    - 250802 | yukyeong | 관리자 전용 영역 제목(admin-actions-title) 블록 추가
+    - 250806 | yukyeong | "목록으로 돌아가기" 버튼 클릭 시 쿼리스트링(pageNum, keyword, category) 반영되도록 개선
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='공지사항 - 게시글 조회'">
+    <title>공지사항</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/notice-detail.css}">
+        <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 콘텐츠 -->
+<div layout:fragment="content" class="fade-in">
+    <!-- 헤드 섹션 -->
+    <section class="head-section">
+        <div class="container">
+            <div class="head-content">
+                <div class="head-title-wrap">
+                    <div class="head-icon">📖</div>
+                    <h1 class="head-title">공지사항 상세보기</h1>
+                </div>
+                <p class="head-subtitle">최신 공지사항의 자세한 내용을 확인해보세요</p>
+                <div class="head-breadcrumb">
+                    <a th:href="@{/}">홈</a>
+                    <span>·</span>
+                    <a th:href="@{/notices}">공지사항</a>
+                    <span>·</span>
+                    <span class="current">상세보기</span>
+                </div>
+            </div>
+        </div>
+        <!-- 배경 장식 -->
+        <div class="head-decoration"></div>
+    </section>
+
+    <div class="container">
+        <!-- 공지사항 상세 컨테이너 (중앙배치) -->
+        <div class="notice-detail-layout">
+            <!-- 공지사항 상세 메인 콘텐츠 -->
+            <div class="notice-detail-main fade-in">
+                <!-- 뒤로가기 버튼 -->
+                <button class="back-btn" id="backToListBtn">
+                    <span class="back-icon">←</span>
+                    <span>목록으로 돌아가기</span>
+                </button>
+
+                <!-- 공지사항 아티클 -->
+                <article class="notice-article">
+                    <!-- 공지사항 헤더 -->
+                    <header class="notice-article-header">
+                        <!-- 중요 공지 뱃지 (조건부 표시) -->
+                        <div class="important-badge" id="important-badge" style="display: none;">
+                            <span class="badge-icon">⚠️</span>
+                            <span>중요 공지</span>
+                        </div>
+
+                        <!-- 공지사항 제목 -->
+                        <h1 class="notice-article-title" id="notice-title">공지사항 제목</h1>
+
+                        <!-- 공지사항 메타 정보 -->
+                        <div class="notice-article-meta">
+                            <div class="author-section">
+                                <div class="author-info">
+                                    <div class="author-avatar" id="notice-avatar">
+                                        <span>👤</span>
+                                    </div>
+                                    <div class="author-details">
+                                        <div class="author-name" id="notice-author">관리자</div>
+                                        <div class="author-role" id="notice-role">관리자</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="notice-meta-info">
+                                <div class="meta-item">
+                                    <span class="meta-icon">📅</span>
+                                    <span class="meta-label">작성일</span>
+                                    <span class="meta-value" id="notice-date">날짜</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-icon">👁️</span>
+                                    <span class="meta-label">조회</span>
+                                    <span class="meta-value" id="notice-views">0회</span>
+                                </div>
+                                <div class="meta-item" id="notice-category-wrapper" style="display: none;">
+                                    <span class="meta-icon">🏷️</span>
+                                    <span class="meta-label">분류</span>
+                                    <span class="meta-value" id="notice-category">카테고리</span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- 공지사항 내용 -->
+                    <div class="notice-article-content" id="notice-content">
+                        <!-- 여기에 공지사항 내용이 표시됩니다 -->
+                        <div class="content-placeholder">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                                <p>공지사항을 불러오는 중...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 액션 버튼들 -->
+                    <div class="notice-actions">
+                        <button class="action-btn bookmark-btn" id="bookmarkBtn">
+                            <span class="btn-icon">🔖</span>
+                            <span>북마크</span>
+                        </button>
+                        <button class="action-btn share-btn" id="shareBtn">
+                            <span class="btn-icon">📤</span>
+                            <span>공유하기</span>
+                        </button>
+                        <button class="action-btn print-btn" onclick="window.print()">
+                            <span class="btn-icon">🖨️</span>
+                            <span>인쇄하기</span>
+                        </button>
+                    </div>
+                </article>
+
+                <!-- 관리자 전용 액션 섹션 -->
+                <section class="admin-actions" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                    <div class="admin-actions-title">
+                        <span class="admin-icon">🛠️</span>
+                        <span>관리자 전용</span>
+                    </div>
+                    <div class="admin-action-buttons">
+                        <a id="editBtn" class="admin-btn edit-btn" th:href="@{/notice/edit/{id}(id=${notice?.id})}">
+                            <span class="btn-icon">✏️</span>
+                            <span>글 수정</span>
+                        </a>
+                        <button type="button" id="deleteBtn" class="admin-btn delete-btn">
+                            <span class="btn-icon">🗑️</span>
+                            <span>글 삭제</span>
+                        </button>
+                        <a th:href="@{/notice/register}" class="admin-btn new-btn">
+                            <span class="btn-icon">➕</span>
+                            <span>새 글 작성</span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- 네비게이션 (이전/다음 글) -->
+                <div class="notice-navigation" id="noticeNavigation" style="display: none;">
+                    <div class="nav-item prev-notice" id="prevNotice">
+                        <span class="nav-label">이전 글</span>
+                        <a href="#" class="nav-title" id="prevTitle">이전 공지사항 제목</a>
+                        <span class="nav-date" id="prevDate">2025.08.10</span>
+                    </div>
+                    <div class="nav-item next-notice" id="nextNotice">
+                        <span class="nav-label">다음 글</span>
+                        <a href="#" class="nav-title" id="nextTitle">다음 공지사항 제목</a>
+                        <span class="nav-date" id="nextDate">2025.08.12</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크롤 투 탑 버튼 -->
+    <button class="scroll-top-btn" id="scrollTopBtn">
+        <span>↑</span>
+    </button>
+
+    <!-- 공유 모달 -->
+    <div class="share-modal-overlay" id="shareModal">
+        <div class="share-modal">
+            <div class="share-modal-header">
+                <h3>공지사항 공유하기</h3>
+                <button class="share-modal-close" id="shareModalClose">×</button>
+            </div>
+            <div class="share-modal-content">
+                <div class="share-url-section">
+                    <label>링크 주소</label>
+                    <div class="share-url-container">
+                        <input type="text" id="shareUrl" readonly>
+                        <button id="copyUrlBtn">복사</button>
+                    </div>
+                </div>
+                <div class="share-social-section">
+                    <label>소셜 미디어로 공유</label>
+                    <div class="share-social-buttons">
+                        <button class="social-btn kakao" id="kakaoShareBtn">카카오톡</button>
+                        <button class="social-btn facebook" id="facebookShareBtn">페이스북</button>
+                        <button class="social-btn twitter" id="twitterShareBtn">트위터</button>
+                        <button class="social-btn email" id="emailShareBtn">이메일</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thymeleaf 스크립트 섹션 -->
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/notice-detail.js}"></script>
+        <script th:src="@{/js/notice-get.js}"></script>
+
+        <!-- 페이지 로드 시 공지사항 데이터 전달 -->
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // 서버에서 전달받은 데이터가 있다면 여기서 처리
+            window.noticeData = {
+                id: /*[[${notice?.id}]]*/ null,
+                title: /*[[${notice?.title}]]*/ null,
+                content: /*[[${notice?.content}]]*/ null,
+                author: /*[[${notice?.author}]]*/ null,
+                createDate: /*[[${notice?.createDate}]]*/ null,
+                viewCount: /*[[${notice?.viewCount}]]*/ null,
+                category: /*[[${notice?.category}]]*/ null,
+                important: /*[[${notice?.important}]]*/ false
+            };
+
+            // 쿼리 파라미터 정보 (목록 돌아가기용)
+            window.queryParams = {
+                pageNum: /*[[${param.pageNum}]]*/ '1',
+                keyword: /*[[${param.keyword}]]*/ '',
+                category: /*[[${param.category}]]*/ ''
+            };
+            /*]]>*/
+        </script>
+    </th:block>
+</div>
+</body>
+</html>

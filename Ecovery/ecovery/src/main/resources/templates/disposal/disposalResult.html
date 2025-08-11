@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head th:with="pageTitle='분리배출 결과'">
+    <title>분리배출 ai 서비스</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" href="/css/disposalMain.css">
+    </th:block>
+</head>
+
+<div layout:fragment="content">
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>🤖 AI 스마트 분리배출</h1>
+                <p>AI가 분석한 결과를 확인하세요</p>
+            </div>
+
+            <!-- Step 3: Classification Result -->
+            <div class="classification-step" id="resultStep" style="display: block;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h2>분석 완료!</h2>
+                        <p>AI가 폐기물을 정확히 분류했습니다</p>
+                    </div>
+
+                    <div class="result-container">
+                        <!-- 이미지 + 예측 결과를 묶는 wrapper 추가 -->
+                        <div class="result-image-block">
+                            <div class="result-image">
+                                <img id="resultImage" th:src="${disposalHistory.disposalImgUrl}" alt="분석된 이미지">
+                            </div>
+
+                            <!-- 이미지 아래 예측 결과
+                            <div class="confidence-text"
+                                 th:text="'AI 예측: ' + ${disposalHistory.aiPrediction}">
+                                AI 예측: 예시값
+                            </div> -->
+                        </div>
+
+                        <!-- 정보 -->
+                        <div class="result-info">
+                            <div class="waste-type">
+                                <h3 id="wasteType" th:text="${disposalHistory.finalItem}">책꽂이</h3>
+                                <span class="waste-category" id="wasteCategory" th:text="${disposalHistory.aiPrediction}">small_item</span>
+                            </div>
+
+                            <div class="waste-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">물품명:</span>
+                                    <span class="detail-value" id="itemName" th:text="${disposalHistory.itemName}">책꽂이</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">지역:</span>
+                                    <span class="detail-value" id="regionGu" th:text="${disposalHistory.regionGu}">강남구</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">예상 수수료:</span>
+                                    <span class="detail-value" id="processingFee"
+                                          th:text="${disposalHistory.minPrice == disposalHistory.maxPrice} ?
+                                          ${disposalHistory.minPrice + '원'} :
+                                          ${disposalHistory.minPrice + '원 ~ ' + disposalHistory.maxPrice + '원'}">
+                                        2000원 ~ 5000원
+                                    </span>
+                                </div>
+                                <!--<div class="detail-item">
+                                    <span class="detail-label">등록일시:</span>
+                                    <span class="detail-value" id="createdAt" th:text="${disposalHistory.createdAt}">2025-07-20</span>
+                                </div>-->
+                            </div>
+
+                            <div class="disposal-guide">
+                                <h4>🗂️ 정확한 분류법 안내</h4>
+                                <ul id="disposalSteps">
+                                    <li>폐기물을 가능한 깨끗하게 정리해주세요</li>
+                                    <li>해당 지역 기준으로 처리방식을 확인하세요</li>
+                                    <li>스티커를 부착 후 정해진 장소에 배출하세요</li>
+                                </ul>
+                            </div>
+
+                            <div class="action-buttons">
+                                <a class="btn-outline" th:href="@{#}">
+                                    무료 나눔 하기
+                                </a>
+                                <a class="btn-outline" th:href="@{${disposalHistory.reportUrl}}" target="_blank">
+                                    폐기물 배출 신고
+                                </a>
+
+                                <!-- 버튼들을 가로로 나란히 배치 -->
+                                <div class="image-action-buttons">
+                                    <form id="reportForm" th:action="@{/feedback/report}" method="post" style="display: inline;">
+                                        <input type="hidden" name="disposalHistoryId" th:value="${disposalHistory.disposalHistoryId}" />
+                                        <input type="hidden" name="memberId" th:value="${disposalHistory.memberId}" />
+                                        <button type="button" class="btn-outline btn-half" onclick="submitReport()">사물 인식 오류 신고</button>
+                                    </form>
+                                    <a class="btn-primary btn-half" th:href="@{/disposal/disposalMain}">새로운 분류 시작</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4는 따로 동작하지 않으니 숨김 유지 -->
+            <div class="classification-step" id="completionStep" style="display: none;"></div>
+
+        </div>
+    </main>
+</div>
+
+<th:block layout:fragment="script">
+    <script>
+        async function submitReport() {
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                const text = await response.text();
+
+                if(text === 'ok') {
+                    alert('오류 신고가 완료되었습니다.');
+                    window.location.href = '/disposal/disposalMain';
+                } else if(text === 'duplicate') {
+                    alert('이미 신고된 항목입니다.');
+                    // 원하면 리다이렉트도 가능
+                    // window.location.href = '/disposal/disposalMain';
+                } else {
+                    alert('알 수 없는 오류가 발생했습니다.');
+                    console.error('Unexpected response:', text);
+                }
+
+            } catch (e) {
+                alert('오류 신고 중 문제가 발생했습니다.');
+                console.error(e);
+            }
+        }
+    </script>
+</th:block>
+
+</html>

@@ -1,0 +1,245 @@
+<!--
+    에코마켓 상품 등록 페이지
+    @author : sehui
+    @fileName : eco-market-register.html
+    @since : 250730
+    @history
+     - 250730 | sehui | 에코마켓 상품 등록 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250730 | sehui | 재고수량 HTML 추가
+     - 250811 | sehui | 폼 헤더를 페이지 헤더로 변경, <main> 태그 삭제
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='에코마켓'">
+    <title>에코마켓 상품 등록</title>
+
+    <!-- 추가 css -->
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/eco-market-register.css}">
+    </th:block>
+
+</head>
+
+<body>
+<!-- 본문 fragment -->
+<div layout:fragment="content">
+
+    <!-- 현재 위치 표시 (빵부스러기) -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a th:href="@{/}">🏠</a>
+                <span>></span>
+                <a th:href="@{/eco/list}">에코마켓</a>
+                <span>></span>
+                <span class="current">상품 등록</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- 페이지 헤더 (기존 폼 헤더를 상단으로 이동) -->
+    <section class="page-header-enhanced">
+        <div class="container">
+            <div class="header-content">
+                <h2 class="header-title">상품 정보 등록하기</h2>
+                <p class="header-subtitle">정확하고 자세한 정보를 입력하면 더 많은 구매자에게 어필할 수 있어요</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 등록 폼 -->
+    <section class="registration-section">
+        <div class="container">
+            <!-- 폼 컨테이너 -->
+            <div class="form-container">
+                <!-- 폼 헤더 -->
+<!--                    <div class="form-header">-->
+<!--                        <h2>상품 정보 등록하기</h2>-->
+<!--                        <p>정확하고 자세한 정보를 입력하면 더 많은 구매자에게 어필할 수 있어요</p>-->
+<!--                    </div>-->
+
+                <!-- 실제 폼 -->
+                <form class="form-body" id="registrationForm" enctype="multipart/form-data">
+
+                    <!-- 상품명 입력 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">상품명 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <input type="text"
+                                   class="form-input"
+                                   name="title"
+                                   id="productName"
+                                   placeholder="상품명을 입력해주세요"
+                                   required>
+
+                            <!-- JS에서 동적으로 채우는 오류 메시지 -->
+                            <div class="error-message" id="productNameError"></div>
+                        </div>
+                    </div>
+
+                    <!-- 등록일 (자동 입력) -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">등록일</label>
+                        </div>
+                        <div class="form-input-section">
+                            <input type="text"
+                                   class="form-input"
+                                   id="regDate"
+                                   name="regDate"
+                                   readonly>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 선택 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">카테고리 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <select class="form-select" name="categoryId" id="category" required>
+                                <!-- JS로 동적으로 옵션 추가 예정 -->
+                            </select>
+                            <div class="error-message" id="categoryError"></div>
+                        </div>
+                    </div>
+
+                    <!-- 상품 판매 상태 선택 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">판매 상태 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <select class="form-select" name="condition" id="condition" required>
+                                <option value="">판매 상태를 선택해주세요</option>
+                                <option value="SELL">판매중</option>
+                                <option value="SOLD_OUT">품절</option>
+                            </select>
+
+                            <div class="error-message" id="saleStatusError"></div>
+                            <div class="help-text">현재 상품의 판매 상태를 정확히 선택해주세요.</div>
+
+                            <!-- 판매 상태 미리보기 (JavaScript로 제어) -->
+                            <div class="condition-preview" id="conditionPreview"></div>
+                        </div>
+                    </div>
+
+                    <!-- 가격 정보 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">가격정보 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <div class="price-group">
+                                <div class="price-input-wrapper">
+                                    <input type="number"
+                                           class="form-input price-input"
+                                           name="price"
+                                           id="price"
+                                           placeholder="0"
+                                           min="1000"
+                                           required>
+                                    <span class="currency">원</span>
+                                </div>
+                            </div>
+                            <div class="error-message" id="priceError"></div>
+                            <div class="help-text">최소 1,000원 이상부터 등록 가능합니다.</div>
+                            <!-- 가격 분석 (JavaScript로 제어) -->
+                            <div class="price-analysis" id="priceAnalysis"></div>
+                        </div>
+                    </div>
+
+                    <!-- 재고 수량 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">재고 수량 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <div class="stock-group">
+                                <div class="stock-input-wrapper">
+                                    <input type="number"
+                                           class="form-input stock-input"
+                                           name="stockNumber"
+                                           id="stockNumber"
+                                           placeholder="0"
+                                           min="1"
+                                           required>
+                                    <span class="currency">개</span>
+                                </div>
+                            </div>
+                            <div class="error-message" id="stockError"></div>
+                            <div class="help-text">최소 1개 이상부터 등록 가능합니다.</div>
+                            <!-- 가격 분석 (JavaScript로 제어) -->
+                            <div class="stock-analysis" id="stockAnalysis"></div>
+                        </div>
+                    </div>
+
+                    <!-- 상품 설명 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">상품설명 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                                <textarea class="form-input form-textarea"
+                                          name="description"
+                                          id="description"
+                                          placeholder="상품에 대한 자세한 설명을 적어주세요"
+                                          required></textarea>
+                            <div class="error-message" id="descriptionError"></div>
+                            <div class="help-text">고객이 쉽게 이해할 수 있도록 상품 정보를 구체적으로 적어 주세요.</div>
+                            <!-- 글자수 카운터는 JS에서 추가됨 -->
+                        </div>
+                    </div>
+
+                    <!-- 사진 업로드 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">상품사진 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <!-- 사진 업로드 영역 -->
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">상품 사진을 업로드하거나 여기를 클릭하세요</div>
+                                <div class="upload-hint">최대 5개까지 업로드 가능 (JPG, PNG) - 첫 번째 사진이 대표 이미지가 됩니다</div>
+                            </div>
+                            <!-- 실제 파일 입력 -->
+                            <input type="file" name="itemImgFile[]" id="imageInput" multiple accept="image/*" style="display: none;">
+
+                            <!-- 에러 메시지 -->
+                            <div class="error-message" id="imagesError"></div>
+
+                            <!-- 업로드된 사진 미리보기 (JavaScript로 제어) -->
+                            <div class="image-preview" id="imagePreview"></div>
+
+                            <div class="help-text">
+                                💡 <strong>이미지 등록 안내:</strong> 고객이 상품을 정확히 이해할 수 있도록, 선명하고 다양한 각도의 이미지를 등록해 주세요.
+                                대표 이미지가 첫 번째 사진으로 설정되며, 이미지가 많을수록 상품 신뢰도가 올라갑니다!
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- 폼 버튼들 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelBtn">취소</button>
+                    <button type="submit" class="btn btn-submit" form="registrationForm">상품 등록</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- 추가 JS -->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/eco-market-register.js}"></script>
+</th:block>
+
+</body>
+</html>

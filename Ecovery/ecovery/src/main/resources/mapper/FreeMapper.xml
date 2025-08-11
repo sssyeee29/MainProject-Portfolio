@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ecovery.mapper.FreeMapper">
+
+
+<!--
+ * 무료나눔 게시판 Mapper XML
+ * 게시글 관련 SQL문을 정의한 MyBatis 매퍼 파일
+ * - 게시글 등록, 조회, 수정, 삭제 기능 포함
+ * - 작성자 닉네임, 대표 이미지 등을 조인하여 함께 조회 가능
+ * - 페이징 및 검색 기능 쿼리도 포함되어 있음
+ *
+ * @author : yeonsu
+ * @fileName : FreeMapper.xml
+ * @since : 250714
+-->
+
+    <resultMap id="freeMap" type="com.ecovery.domain.FreeVO">
+        <id property="freeId" column="free_id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="category" column="category"/>
+        <result property="regionGu" column="region_gu"/>
+        <result property="regionDong" column="region_dong"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="itemCondition" column="item_condition" javaType="com.ecovery.constant.ItemCondition"/>
+        <result property="dealStatus" column="deal_status" javaType="com.ecovery.constant.DealStatus"/>
+        <result property="nickname" column="nickname"/>
+        <result property="imgUrl" column="img_url"/>
+    </resultMap>
+
+    <!-- 게시글 전체 목록 조회 -->
+    <select id="getListWithPaging" resultType="com.ecovery.dto.FreeDto">
+        SELECT
+        f.free_id AS freeId,
+        f.title AS title,
+        f.member_id AS memberId,
+        f.created_at AS createdAt,
+        f.item_condition AS itemCondition,
+        f.region_gu AS regionGu,
+        f.region_dong AS regionDong,
+        f.content AS content,
+        f.deal_status AS dealStatus,
+        f.view_count AS viewCount,
+        f.category AS category,
+        m.nickname AS nickname,
+        i.img_url AS imgUrl
+        FROM free f
+        JOIN member m ON f.member_id = m.member_id
+        LEFT JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'
+        <where>
+            <if test="type != null and keyword != null and keyword != ''">
+                <include refid="criteria" />
+            </if>
+            f.free_id > 0
+        </where>
+        ORDER BY f.free_id DESC
+        LIMIT #{amount} OFFSET #{offset}
+    </select>
+
+
+    <!-- 게시글 삽입-->
+    <insert id="insert" parameterType="com.ecovery.domain.FreeVO" useGeneratedKeys="true" keyProperty="freeId">
+        INSERT INTO free(
+            title, member_id, category, region_gu, created_at,
+            region_dong, content, item_condition, deal_status
+        )
+        VALUES (
+                   #{title}, #{memberId}, #{category}, #{regionGu}, now(),
+                   #{regionDong}, #{content}, #{itemCondition}, #{dealStatus}
+               )
+    </insert>
+
+    <!-- 게시글 수정 -->
+    <update id="update" parameterType="com.ecovery.domain.FreeVO">
+        UPDATE free
+        SET title = #{title}, category = #{category}, region_gu = #{regionGu}, region_dong = #{regionDong}, created_at = now(),
+            content = #{content}, item_condition = #{itemCondition}, deal_status = #{dealStatus}
+        WHERE free_id = #{freeId}
+    </update>
+
+    <!-- 게시글 삭제(작성자 본인, 관리자도 가능)-->
+    <delete id="delete" parameterType="com.ecovery.domain.FreeVO">
+        DELETE FROM free
+        WHERE free_id = #{freeId}
+        <if test="memberId != null">
+            AND member_id = #{memberId}
+        </if>
+    </delete>
+
+
+    <!-- 검색 조건(제목, 내용, 지역(구,동) -->
+    <!-- 검색 조건(제목, 내용, 지역(구,동) -->
+    <sql id="criteria">
+        <trim prefix="(" suffix=") and">
+            <foreach collection="typeArr"  item="type" separator="or">
+                <if test="type == 'T'.toString()">
+                    f.title LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+
+                <if test="type=='C'.toString()">
+                    f.content LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+
+                <if test="type=='R'.toString()">
+                    f.region_gu LIKE CONCAT('%', #{keyword}, '%')
+                    OR f.region_dong LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+                <if test="type=='TCR'.toString()">
+                    f.title LIKE CONCAT('%', #{keyword}, '%')
+                    OR f.content LIKE CONCAT('%', #{keyword}, '%')
+                    OR f.region_gu LIKE CONCAT('%', #{keyword}, '%')
+                    OR f.region_dong LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+            </foreach>
+        </trim>
+    </sql>
+
+    <!-- 페이징 처리를 위한 전체 게시글 수를 조회 -->
+    <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
+        SELECT COUNT(*)
+        FROM free f
+        <where>
+            <if test="type != null and keyword != null and keyword != ''">
+                <include refid="criteria"></include>
+            </if>
+            free_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
+        </where>
+    </select>
+
+    <!-- 조회수를 1 증가-->
+    <update id="updateViewCount" parameterType="Long">
+        UPDATE free
+        SET view_count = view_count + 1
+        WHERE free_id = #{freeId}
+    </update>
+
+    <!-- 게시글 상세 조회 + 작성자 닉네임 포함 -->
+    <select id="read" resultMap="freeMap">
+        SELECT
+            f.free_id,
+            f.title,
+            f.content,
+            f.category,
+            f.region_gu,
+            f.region_dong,
+            f.view_count,
+            f.item_condition,
+            f.deal_status,
+            f.created_at,
+            f.member_id,
+            m.nickname,
+            i.img_url
+        FROM free f
+        LEFT JOIN member m ON f.member_id = m.member_id
+        LEFT JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'
+        WHERE f.free_id = #{freeId}
+
+    </select>
+</mapper>

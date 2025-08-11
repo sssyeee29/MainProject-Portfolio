@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>ECOVERY - 마이페이지</title>
+    <!-- 헤더/푸터 CSS 추가 -->
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <!-- 마이페이지 CSS -->
+    <link rel="stylesheet" th:href="@{/css/mypage-style.css}">
+    <!-- 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main id="mainContent">
+        <!-- 프로필 헤더 섹션 -->
+        <section class="profile-header">
+            <div class="container">
+                <div class="profile-banner">
+                    <!-- 프로필 정보 섹션 -->
+                    <div class="profile-info">
+                        <div class="profile-details">
+                            <!-- 사용자 이름과 편집 아이콘 -->
+                            <div class="user-name-container">
+                                <h1 class="user-name" th:text="${member.nickname + '님'}">김환경님</h1>
+                                <!-- 회원정보 수정 아이콘 -->
+                                <button class="edit-profile-icon" onclick="openProfileModal()" aria-label="회원정보 수정">
+                                    <i class="edit-icon">✏️</i>
+                                </button>
+                            </div>
+
+                            <!-- 사용자 이메일 -->
+                            <p class="user-email" th:text="'이메일 : ' + ${member.email}">이메일 : green@greencycle.com</p>
+
+                            <!-- 가입 정보 -->
+                            <div class="join-info">
+                                <span th:text="'가입일 : ' + ${#dates.format(member.createdAt, 'yyyy.MM.dd')}">가입일 : 2025.07.25</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 대시보드 메인 컨테이너 -->
+        <section class="dashboard-main">
+            <div class="container">
+                <!-- 대시보드 그리드 레이아웃 -->
+                <div class="dashboard-grid">
+
+                    <!-- 2. 구매 내역 섹션 -->
+                    <div class="dashboard-card purchase-history">
+                        <div class="card-header">
+                            <h3>📦 구매 내역</h3>
+                            <button class="btn-small" th:onclick="|location.href='@{/orders/list}'|">
+                                전체보기
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <!-- 구매 통계 -->
+                            <div class="purchase-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">5</span>
+                                    <span class="stat-label">이번 달</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">₩124,000</span>
+                                    <span class="stat-label">총 구매액</span>
+                                </div>
+                            </div>
+
+                            <!-- 최근 구매 내역 -->
+                            <div class="recent-purchases">
+                                <h4>최근 주문</h4>
+                                <div class="purchase-list">
+                                    <div class="purchase-item" data-order-id="ORD001">
+                                        <div class="item-info">
+                                            <span class="item-name">친환경 세제 세트</span>
+                                            <span class="item-date">2024.07.20</span>
+                                        </div>
+                                        <span class="item-status delivered">배송완료</span>
+                                    </div>
+                                    <div class="purchase-item" data-order-id="ORD002">
+                                        <div class="item-info">
+                                            <span class="item-name">재활용 텀블러</span>
+                                            <span class="item-date">2024.07.18</span>
+                                        </div>
+                                        <span class="item-status shipping">배송중</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 나눔 관리 섹션 -->
+                    <div class="dashboard-card sharing-management">
+                        <div class="card-header">
+                            <h3>🤝 나눔 관리</h3>
+                            <button class="btn-small" th:onclick="|location.href='@{/free/list}'|">
+                                나눔 등록
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <!-- 나눔 통계 -->
+                            <div class="sharing-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">3</span>
+                                    <span class="stat-label">진행중</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">12</span>
+                                    <span class="stat-label">완료</span>
+                                </div>
+                            </div>
+
+                            <!-- 나눔 활동 -->
+                            <div class="sharing-activities">
+                                <h4>나의 나눔</h4>
+                                <div class="sharing-list">
+                                    <div class="sharing-item">
+                                        <div class="item-info">
+                                            <span class="item-name">아이 전집 도서</span>
+                                            <span class="item-location">📍 강남구</span>
+                                        </div>
+                                        <span class="item-status available">나눔중</span>
+                                    </div>
+                                    <div class="sharing-item">
+                                        <div class="item-info">
+                                            <span class="item-name">유아 장난감</span>
+                                            <span class="item-location">📍 서초구</span>
+                                        </div>
+                                        <span class="item-status completed">완료</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 분리배출 내역 섹션 -->
+                    <div class="dashboard-card waste-history">
+                        <div class="card-header">
+                            <h3>♻️ 분리배출 내역</h3>
+                            <button class="btn-small" th:onclick="|location.href='@{/disposal/disposalMain}'|">
+                                새 배출
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <!-- 분리배출 통계 -->
+                            <div class="waste-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">47</span>
+                                    <span class="stat-label">이번 달</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">12.3kg</span>
+                                    <span class="stat-label">CO₂ 절약</span>
+                                </div>
+                            </div>
+
+                            <!-- 최근 배출 내역 -->
+                            <div class="waste-activities">
+                                <h4>최근 활동</h4>
+                                <div class="waste-list">
+                                    <div class="waste-item">
+                                        <div class="waste-icon plastic">♻️</div>
+                                        <div class="item-info">
+                                            <span class="item-name">플라스틱 병</span>
+                                            <span class="item-date">3시간 전</span>
+                                        </div>
+                                        <span class="reward-points">+15P</span>
+                                    </div>
+                                    <div class="waste-item">
+                                        <div class="waste-icon paper">📄</div>
+                                        <div class="item-info">
+                                            <span class="item-name">종이류</span>
+                                            <span class="item-date">1일 전</span>
+                                        </div>
+                                        <span class="reward-points">+10P</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. 포인트 내역 섹션 -->
+                    <div class="dashboard-card points-history">
+                        <div class="card-header">
+                            <h3>💎 포인트 내역</h3>
+                            <button class="btn-small" th:onclick="|location.href='@{/mypage/points}'|">
+                                전체보기
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <!-- 포인트 요약 -->
+                            <div class="points-summary">
+                                <div class="current-points">
+                                    <span class="points-amount">15,680P</span>
+                                    <span class="points-label">보유 포인트</span>
+                                </div>
+                                <div class="points-change">
+                                    <span class="points-earned">+2,340P</span>
+                                    <span class="period-label">이번 달</span>
+                                </div>
+                            </div>
+
+                            <!-- 최근 포인트 내역 -->
+                            <div class="points-activities">
+                                <h4>최근 적립/사용</h4>
+                                <div class="points-list">
+                                    <div class="points-item earn">
+                                        <div class="item-info">
+                                            <span class="item-desc">분리배출 완료</span>
+                                            <span class="item-date">3시간 전</span>
+                                        </div>
+                                        <span class="points-value">+15P</span>
+                                    </div>
+                                    <div class="points-item use">
+                                        <div class="item-info">
+                                            <span class="item-desc">친환경 세제 구매</span>
+                                            <span class="item-date">2일 전</span>
+                                        </div>
+                                        <span class="points-value">-500P</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 회원정보 수정 모달 -->
+        <div id="profileModal" class="modal-overlay" onclick="closeProfileModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>회원정보 수정</h3>
+                    <button class="modal-close" onclick="isFormDirty = false; closeProfileModal()" aria-label="모달 닫기">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileEditForm" method="post">
+                        <!-- 닉네임 수정 불가 -->
+                        <div class="form-group">
+                            <label for="editNickname">닉네임</label>
+                            <div class="input-group">
+                                <input type="text" id="editNickname" class="form-control" th:value="${member.nickname}" readonly style="background-color: darkgray;">
+                            </div>
+                        </div>
+
+                        <!-- 이메일 수정 불가 -->
+                        <div class="form-group">
+                            <label for="editEmail">이메일</label>
+                            <div class="input-group">
+                                <input type="email" id="editEmail" class="form-control" th:value="${member.email}" style="background-color: darkgray;">
+                            </div>
+                        </div>
+
+                        <!-- 비밀번호 변경 -->
+                        <div class="form-group">
+                            <label for="currentPassword">현재 비밀번호</label>
+                            <input type="password" id="currentPassword" placeholder="현재 비밀번호를 입력하세요">
+                            <div id="currentPasswordError" class="validation-message error-hidden">현재 비밀번호가 맞지 않습니다.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">새 비밀번호</label>
+                            <input type="password" id="newPassword" placeholder="새 비밀번호를 입력하세요">
+                            <div id="newPasswordError" class="validation-message error-hidden">영문/숫자/특수문자 포함 8자 이상이여야 합니다.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">새 비밀번호 확인</label>
+                            <input type="password" id="confirmPassword" placeholder="새 비밀번호를 다시 입력하세요">
+                            <div id="confirmPasswordError" class="validation-message error-hidden">작성하신 새 비밀번호와 맞지 않습니다.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="isFormDirty = false; closeProfileModal();">취소</button>
+                    <button type="button" class="btn-primary" onclick="saveProfileChanges()">저장</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+<div th:replace="fragments/footer :: footer"></div>
+<script src="/js/mypage-script.js"></script>
+</body>
+</html>

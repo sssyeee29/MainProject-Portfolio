@@ -1,0 +1,51 @@
+<!--
+Ecovery 공통 레이아웃 템플릿
+Thymeleaf Layout Dialect를 이용한 기본 레이아웃 구성
+자식 페이지에서 layout:decorate="~{layouts/layout1}" 방식으로 상속하여 사용
+공통 헤더/푸터 포함, 페이지 타이틀 동적 처리, 공통 CSS 및 JS 설정 가능
+
+@author : yukyeong
+@fileName : layout1.html
+@since : 250718
+@history
+    - 250718 | yukyeong | 공통 레이아웃 템플릿 작성 (header, footer, content 구조 포함)
+-->
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title th:text="${pageTitle} + ' - Ecovery'">Ecovery</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- 공통 CSS -->
+    <!--    <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">-->
+
+    <!-- 추가 CSS 영역 (자식 페이지에서 사용) -->
+    <th:block layout:fragment="css"></th:block>
+</head>
+
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<main class="main-content">
+    <div class="container" layout:fragment="content"></div>
+</main>
+
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- 공통 JS -->
+<!--<script th:src="@{/js/eco-talk-script.js}"></script>-->
+
+<!-- 추가 JS 영역 (자식 페이지에서 사용) -->
+<th:block layout:fragment="script"></th:block>
+</body>
+</html>

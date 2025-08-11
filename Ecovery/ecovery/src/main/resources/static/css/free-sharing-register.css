@@ -1,0 +1,885 @@
+/* =========================
+   초기화 및 기본 설정
+   ========================= */
+
+/* 모든 요소의 기본 여백과 패딩 제거 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* 테두리와 패딩을 포함한 크기 계산 */
+}
+
+/* CSS 변수 (색상과 크기를 한곳에서 관리) */
+:root {
+    /* 색상 */
+    --primary-green: #2d5a3d;      /* 메인 녹색 */
+    --accent-green: #6fa776;       /* 포인트 녹색 */
+    --light-green: #a8d5b7;        /* 연한 녹색 */
+    --dark-green: #1e3d2a;         /* 진한 녹색 */
+    --white: #ffffff;              /* 흰색 */
+    --light-gray: #f8f9fa;         /* 연한 회색 */
+    --medium-gray: #6c757d;        /* 중간 회색 */
+    --dark-gray: #343a40;          /* 진한 회색 */
+    --error-red: #dc3545;          /* 에러 빨간색 */
+    --success-green: #28a745;      /* 성공 녹색 */
+
+    /* 크기 */
+    --container-width: 1200px;     /* 최대 컨테이너 너비 */
+    --border-radius: 12px;         /* 모서리 둥글기 */
+    --box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1); /* 그림자 */
+}
+
+/* 기본 body 스타일 */
+body {
+    font-family: 'Noto Sans KR', sans-serif; /* 폰트 */
+    line-height: 1.6;                        /* 줄 간격 */
+    color: var(--dark-gray);                 /* 텍스트 색상 */
+    background: linear-gradient(135deg, var(--light-gray) 0%, #f0f8f4 100%); /* 배경 그라데이션 */
+}
+
+/* 컨테이너 (내용을 가운데 정렬) */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;        /* 가운데 정렬 */
+    padding: 0 20px;       /* 좌우 여백 */
+}
+
+/* =========================
+   헤더 (상단 메뉴)
+   ========================= */
+
+.header {
+    position: fixed;           /* 스크롤해도 고정 */
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95); /* 반투명 흰색 */
+    backdrop-filter: blur(10px);            /* 뒷배경 흐림 효과 */
+    z-index: 1000;            /* 다른 요소보다 위에 */
+    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1); /* 그림자 */
+}
+
+.navbar {
+    padding: 15px 0;
+}
+
+.nav-container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;             /* 가로로 정렬 */
+    justify-content: space-between; /* 양쪽 끝에 배치 */
+    align-items: center;       /* 세로 가운데 정렬 */
+}
+
+/* 로고 스타일 */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;                 /* 아이콘과 텍스트 사이 간격 */
+    text-decoration: none;     /* 밑줄 제거 */
+    color: var(--primary-green);
+    font-size: 24px;
+    font-weight: 700;          /* 굵은 글씨 */
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* 메뉴 스타일 */
+.nav-menu {
+    display: flex;
+    list-style: none;          /* 불릿 포인트 제거 */
+    gap: 40px;                 /* 메뉴 간격 */
+    align-items: center;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 500;
+    transition: color 0.3s ease; /* 색상 변화 애니메이션 */
+}
+
+.nav-menu a:hover {           /* 마우스 올렸을 때 */
+    color: var(--primary-green);
+}
+
+.nav-menu a.active {          /* 현재 페이지 */
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+/* 로그인/회원가입 버튼 */
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-login, .btn-signup {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-login {
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.btn-login:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-signup {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-signup:hover {
+    background: var(--dark-green);
+}
+
+/* =========================
+   메인 내용
+   ========================= */
+
+.main-content {
+    padding-top: 100px;       /* 헤더 높이만큼 여백 */
+    min-height: 100vh;        /* 최소 화면 전체 높이 */
+}
+
+/* 현재 위치 표시 (빵부스러기) */
+.breadcrumb {
+    padding: 20px 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+.breadcrumb-nav a {
+    color: var(--medium-gray);
+    text-decoration: none;
+}
+
+.breadcrumb-nav a:hover {
+    color: var(--primary-green);
+}
+
+.breadcrumb-nav .current {    /* 현재 위치 */
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+/* =========================
+   개선된 페이지 헤더
+   ========================= */
+
+.page-header-enhanced {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    color: var(--white);
+    padding: 60px 0;          /* 패딩 증가 */
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.06)"/></svg>') repeat;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.header-title {
+    font-size: 52px;          /* 기존 48px에서 증가 */
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -1px;
+}
+
+.header-subtitle {
+    font-size: 22px;          /* 기존 20px에서 증가 */
+    opacity: 0.95;
+    max-width: 700px;         /* 기존 600px에서 증가 */
+    margin: 0 auto;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+/* =========================
+   등록 폼
+   ========================= */
+
+.registration-section {
+    padding: 60px 0;
+    background: var(--light-gray);
+}
+
+/* 폼 전체 컨테이너 */
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+/* 폼 내용 - 기존 form-header 스타일 제거하고 바로 폼 시작 */
+.form-body {
+    padding: 60px;
+}
+
+/* 각 입력 항목의 행 */
+.form-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 40px;
+    align-items: start;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.form-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* 라벨 스타일 */
+.form-label {
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 16px;
+    margin-bottom: 0;
+    padding-top: 16px;
+    line-height: 1.5;
+    height: fit-content;
+}
+
+/* 입력 래퍼 */
+.form-input-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 필수 항목 표시 */
+.required {
+    color: var(--error-red);
+}
+
+/* 입력창 기본 스타일 */
+.form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid var(--light-gray);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.3s ease;
+    background: var(--white);
+}
+
+/* 입력창 포커스 */
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(45, 90, 61, 0.1);
+    transform: translateY(-1px);
+}
+
+/* 텍스트 영역 */
+.form-textarea {
+    resize: vertical;
+    min-height: 140px;
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.6;
+}
+
+/* 선택 박스 */
+.form-select {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid var(--light-gray);
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--white);
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(45, 90, 61, 0.1);
+    transform: translateY(-1px);
+}
+
+/* 가로로 나란히 배치하는 그룹 */
+.form-group {
+    display: flex;
+    gap: 20px;
+}
+
+.form-group .form-select {
+    flex: 1;
+}
+
+/* 도움말 텍스트 */
+.help-text {
+    font-size: 13px;
+    color: var(--medium-gray);
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+/* =========================
+   이미지 업로드
+   ========================= */
+
+/* 이미지 업로드 영역 */
+.image-upload-area {
+    border: 3px dashed var(--accent-green);
+    border-radius: 12px;
+    padding: 50px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(111, 167, 118, 0.05), rgba(111, 167, 118, 0.02));
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.image-upload-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(111, 167, 118, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.image-upload-area:hover::before {
+    left: 100%;
+}
+
+.image-upload-area:hover {
+    border-color: var(--primary-green);
+    background: linear-gradient(135deg, rgba(111, 167, 118, 0.1), rgba(111, 167, 118, 0.05));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(45, 90, 61, 0.15);
+}
+
+.upload-icon {
+    font-size: 56px;
+    margin-bottom: 20px;
+    color: var(--accent-green);
+    position: relative;
+    z-index: 2;
+}
+
+.upload-text {
+    color: var(--dark-gray);
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    z-index: 2;
+}
+
+.upload-hint {
+    font-size: 13px;
+    color: var(--medium-gray);
+    position: relative;
+    z-index: 2;
+}
+
+/* 이미지 미리보기 */
+.image-preview {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+
+.preview-item {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--light-gray);
+    transition: all 0.3s ease;
+}
+
+.preview-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 이미지 삭제 버튼 */
+.remove-image {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--error-red);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.remove-image:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* =========================
+   폼 버튼들
+   ========================= */
+
+.form-actions {
+    background: linear-gradient(135deg, var(--light-gray), #f0f8f4);
+    padding: 40px 50px;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    border-top: 1px solid rgba(45, 90, 61, 0.1);
+}
+
+/* 기본 버튼 스타일 */
+.btn {
+    padding: 18px 40px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* 취소 버튼 */
+.btn-cancel {
+    background: var(--white);
+    color: var(--medium-gray);
+    border: 2px solid var(--light-gray);
+    position: relative;
+    z-index: 1;
+}
+
+.btn-cancel:hover {
+    background: var(--light-gray);
+    border-color: var(--medium-gray);
+    color: var(--dark-gray);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 등록 버튼 */
+.btn-submit {
+    background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+    color: var(--white);
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, var(--dark-green), var(--primary-green));
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(45, 90, 61, 0.4);
+}
+
+/* =========================
+   유효성 검사 스타일
+   ========================= */
+
+/* 에러 상태 */
+.form-input.error {
+    border-color: var(--error-red);
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* 성공 상태 */
+.form-input.success {
+    border-color: var(--success-green);
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: var(--error-red);
+    font-size: 13px;
+    margin-top: 8px;
+    padding: 5px 10px;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 5px;
+    border-left: 3px solid var(--error-red);
+}
+
+/* =========================
+   푸터 (하단)
+   ========================= */
+
+.footer {
+    background: var(--dark-green);
+    color: var(--white);
+    padding: 60px 0 20px;
+    margin-top: 80px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-section h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--light-green);
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 12px;
+}
+
+.footer-section ul li a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+    color: var(--light-green);
+}
+
+.footer-section p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    text-align: center;
+}
+
+/* =========================
+   알림 메시지
+   ========================= */
+
+.notification {
+    position: fixed;
+    top: 120px;
+    right: 30px;
+    background: var(--primary-green);
+    color: white;
+    padding: 18px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.4s ease;
+    max-width: 350px;
+    font-weight: 500;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    background: var(--error-red);
+}
+
+.notification.success {
+    background: var(--success-green);
+}
+
+/* =========================
+   반응형 디자인 (모바일)
+   ========================= */
+
+/* 태블릿 크기 (768px 이하) */
+@media (max-width: 768px) {
+    /* 메뉴 숨김 */
+    .nav-menu {
+        display: none;
+    }
+
+    /* 개선된 헤더 반응형 */
+    .header-title {
+        font-size: 36px;
+    }
+
+    .header-subtitle {
+        font-size: 18px;
+    }
+
+    /* 폼을 세로로 배치 */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    /* 패딩 줄임 */
+    .form-body {
+        padding: 30px;
+    }
+
+    .form-actions {
+        padding: 30px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    /* 푸터를 세로로 배치 */
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    /* 지역 선택을 세로로 배치 */
+    .form-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* 이미지 업로드 영역 축소 */
+    .image-upload-area {
+        padding: 40px 20px;
+    }
+
+    .upload-icon {
+        font-size: 42px;
+    }
+
+    .form-container {
+        margin: 0 15px;
+    }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+    /* 컨테이너 패딩 줄임 */
+    .container {
+        padding: 0 15px;
+    }
+
+    .header-title {
+        font-size: 28px;
+    }
+
+    .header-subtitle {
+        font-size: 16px;
+    }
+
+    .form-body {
+        padding: 20px;
+    }
+
+    /* 버튼 크기 줄임 */
+    .btn {
+        padding: 15px 25px;
+        font-size: 15px;
+    }
+
+    /* 이미지 미리보기 크기 줄임 */
+    .preview-item {
+        width: 100px;
+        height: 100px;
+    }
+
+    /* 이미지 미리보기 가운데 정렬 */
+    .image-preview {
+        justify-content: center;
+    }
+
+    .notification {
+        right: 15px;
+        max-width: calc(100vw - 30px);
+    }
+
+    /* 모바일에서 라벨 정렬 조정 */
+    .form-label {
+        padding-top: 0;
+        margin-bottom: 8px;
+    }
+}
+
+/* =========================
+   애니메이션 효과
+   ========================= */
+
+/* 페이드인 애니메이션 */
+.fade-in {
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 호버 효과 */
+.form-input:hover,
+.form-select:hover {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(111, 167, 118, 0.1);
+}
+
+.btn:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   접근성 개선
+   ========================= */
+
+/* 포커스 표시 */
+.form-input:focus,
+.form-select:focus,
+.btn:focus {
+    outline: 3px solid var(--primary-green);
+    outline-offset: 3px;
+}
+
+/* 상품 상태 관련 스타일 */
+.condition-good {
+    color: var(--success-green);
+    font-weight: 700;
+}
+
+.condition-fair {
+    color: #ffc107;
+    font-weight: 700;
+}
+
+.condition-poor {
+    color: var(--error-red);
+    font-weight: 700;
+}
+
+/* 상품 상태 선택 시 미리보기 */
+.condition-preview {
+    margin-top: 15px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.condition-preview.good {
+    background: rgba(40, 167, 69, 0.15);
+    color: var(--success-green);
+    border: 2px solid var(--success-green);
+}
+
+.condition-preview.fair {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+    border: 2px solid #ffc107;
+}
+
+.condition-preview.poor {
+    background: rgba(220, 53, 69, 0.15);
+    color: var(--error-red);
+    border: 2px solid var(--error-red);
+}

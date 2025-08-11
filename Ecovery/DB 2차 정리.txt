@@ -1,0 +1,234 @@
+-- 데이터베이스 생성
+CREATE DATABASE ecovery;
+-- 프로젝트 DB (ecovery) 선택
+use ecovery;
+
+-- 회원 정보를 저장할 member 테이블
+CREATE TABLE member (
+    member_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NULL,
+    nickname VARCHAR(50) NOT NULL UNIQUE,
+    role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
+    agree_optional ENUM('Y', 'N') NOT NULL DEFAULT 'Y',
+    provider VARCHAR(20) NOT NULL DEFAULT 'local',
+    provider_id VARCHAR(100)
+);
+
+-- 대형폐기물 분류 이력 table
+CREATE TABLE disposal_history (
+    disposal_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    ai_prediction VARCHAR(255),
+	final_item varchar(255),
+    region_gu VARCHAR(50) NOT NULL,
+	ai_confidence DOUBLE,
+    created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
+    FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+-- 대형폐기물 이미지 table
+CREATE TABLE disposal_history_img (
+    disposal_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    disposal_history_id BIGINT NOT NULL,
+    disposal_img_name VARCHAR(255) NOT NULL,
+    ori_disposal_img_name VARCHAR(255),
+    disposal_img_url VARCHAR(500) NOT NULL,
+    FOREIGN KEY (disposal_history_id) REFERENCES disposal_history(disposal_history_id)
+);
+
+-- 대형폐기물 분류 피드백 table
+create table disposal_feedback (
+	feedback_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    disposal_history_id BIGINT NOT NULL,
+    member_id BIGINT,
+    created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
+    FOREIGN KEY (disposal_history_id) REFERENCES disposal_history(disposal_history_id),
+    FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+-- 대형폐기물 표준 안내정보 table
+CREATE TABLE disposal_info (
+    info_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    region VARCHAR(50) NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    min_price VARCHAR(50),
+    max_price VARCHAR(50),
+    report_url VARCHAR(500) NOT NULL
+);
+
+-- 무료나눔 게시글 table
+CREATE TABLE free (
+    free_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content VARCHAR(1000) NOT NULL,
+    category VARCHAR(20) NOT NULL,
+    region_gu VARCHAR(50) NOT NULL,
+    region_dong VARCHAR(50) NOT NULL,
+    item_condition ENUM('HIGH', 'MEDIUM', 'LOW') NOT NULL DEFAULT 'HIGH',
+    deal_status ENUM('ONGOING', 'DONE') NOT NULL DEFAULT 'ONGOING',
+    view_count INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+-- 무료나눔 게시글 이미지 table
+CREATE TABLE free_img (
+    free_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    free_id BIGINT NOT NULL,
+    img_name VARCHAR(255) NOT NULL,
+    ori_img_name VARCHAR(255),
+    img_url VARCHAR(500) NOT NULL,
+    repimg_yn CHAR(1) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_free_img_free FOREIGN KEY (free_id) REFERENCES free(free_id) ON DELETE CASCADE
+);
+
+-- 무료나눔 게시글 댓글 table
+CREATE TABLE free_reply (
+   reply_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   free_id BIGINT NOT NULL,
+   member_id BIGINT NOT NULL,
+   content VARCHAR(1000) NOT NULL,
+   parent_id BIGINT DEFAULT NULL,
+   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   FOREIGN KEY (free_id) REFERENCES free(free_id) ON DELETE CASCADE,
+   FOREIGN KEY (member_id) REFERENCES member(member_id),
+   FOREIGN KEY (parent_id) REFERENCES free_reply(reply_id) ON DELETE CASCADE
+);
+
+-- 에코마켓 상품 정보 table (item)
+create table item (
+    item_id bigint auto_increment primary key,
+    category_id BIGINT not null,
+    item_name varchar(255) not null,
+    price int not null,
+    stock_number int not null default 0,
+    item_detail varchar(1000) not null,
+    sell_status Enum('SELL', 'SOLD_OUT') not null default 'SELL',
+    created_at datetime not null default (current_date),
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES category(category_id)
+);
+
+-- 에코마켓 상품 이미지 table (item_img)
+create table item_img (
+	item_img_id bigint auto_increment primary key,
+    item_id bigint not null,
+    img_name varchar(255) not null,
+    ori_img_name varchar(255),
+    img_url varchar(500) not null,
+    rep_img_yn char(1) not null,
+    created_at datetime not null default (current_date),
+    foreign key(item_id) references Item (item_id)
+);
+
+-- 에코마켓 상품 카테고리 table (category)
+create table category (
+	category_id bigint auto_increment primary key,
+    category_name varchar(255) not null unique
+);
+
+-- 장바구니 table (cart)
+create table cart (
+	cart_id bigint auto_increment primary key,
+    member_id bigint not null,
+    created_at date not null default (current_date),
+    foreign key(member_id) references member(member_id)
+);
+
+-- 장바구니 상품 table (cart_item)
+create table cart_item (
+	cart_item_id bigint auto_increment primary key,
+    cart_id bigint not null,
+    item_id bigint not null,
+    count int not null default 1,
+    created_at date not null default (current_date),
+    foreign key(cart_id) references cart(cart_id),
+    foreign key(item_id) references item(item_id)
+);
+
+-- 주문 정보 table (order)
+create table orders (
+    order_id bigint auto_increment primary key,
+    member_id bigint not null,
+    order_uuid varchar(100) not null unique,
+    order_status ENUM('READY', 'ORDER', 'CANCEL') NOT NULL DEFAULT 'READY',
+    created_at date not null default (current_date),
+    updated_at date not null default (current_date),
+    name varchar(50) NOT NULL,
+    zipcode varchar(10) NOT NULL,
+    road_address varchar(100) NOT NULL,
+    detail_address varchar(100) NOT NULL,
+    phone_number varchar(13) NOT NULL,
+    total_price int NOT NULL,
+    foreign key(member_id) references member(member_id)
+);
+
+-- 주문 상세 table (order_item)
+create table order_item (
+    order_item_id bigint auto_increment primary key,
+    order_id bigint not null,
+    item_id bigint not null,
+    count int not null,
+    order_price int not null,
+    created_at date not null default (current_date),
+    foreign key(order_id) references orders(order_id),
+    foreign key(item_id) references item(item_id)
+);
+
+-- 결제 처리 table (payment)
+create table payment (
+    payment_id bigint auto_increment primary key,
+    order_id bigint not null,
+    order_uuid varchar(100) not null unique,
+    member_id bigint not null,
+    payment_key varchar(255) not null unique,
+    pay_method enum('KAKAOPAY', 'TOSSPAY') not null default 'KAKAOPAY',
+    pay_amount int not null,
+    pay_status enum('PAID', 'CANCEL', 'FAIL') not null default 'PAID',
+    paid_at datetime not null default (current_timestamp),
+    foreign key(order_id) references orders(order_id),
+    foreign key(member_id) references member(member_id)
+);
+
+
+-- 환경톡톡 테이블 (env)
+CREATE TABLE env (
+    env_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content VARCHAR(5000) NOT NULL,
+    view_count INT NOT NULL DEFAULT 0,
+    category VARCHAR(20), 
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+
+-- 환경톡톡 테이블 (env_img)
+CREATE TABLE env_img (
+    env_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    env_id BIGINT NOT NULL,
+    img_name VARCHAR(255),
+    ori_img_name VARCHAR(255),
+    img_url VARCHAR(500),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE
+);
+
+
+-- 공지사항 테이블 (notice)
+CREATE TABLE notice (
+    notice_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content VARCHAR(2000) NOT NULL,
+    view_count INT NOT NULL DEFAULT 0,
+    category VARCHAR(20), 
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES member(member_id)
+);

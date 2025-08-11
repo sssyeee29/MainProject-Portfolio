@@ -1,0 +1,968 @@
+/* ==========================================================================
+   GreenCycle 마이페이지 개선된 레이아웃 CSS
+   프로필 헤더 내용과 대시보드 섹션 너비 완전 정렬 버전
+   ========================================================================== */
+
+/* CSS 변수 정의 */
+:root {
+    --primary-green: #2d5a3d;
+    --accent-green: #6fa776;
+    --light-green: #a8d5b7;
+    --dark-green: #1e3d2a;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+    --dark-gray: #343a40;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --error-red: #e53935;
+    --font-family: 'Noto Sans KR', sans-serif;
+    --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+    --border-radius: 12px;
+    --container-max-width: 1200px;
+    --container-padding: 20px;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s ease;
+}
+
+/* ==========================================================================
+   기본 스타일 초기화
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--dark-gray);
+    background: var(--light-gray);
+}
+
+.container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+/* ==========================================================================
+   메인 콘텐츠
+   ========================================================================== */
+#mainContent {
+    margin-top: 80px;
+    min-height: calc(100vh - 80px);
+}
+
+/* ==========================================================================
+   프로필 헤더 섹션 - 대시보드와 동일한 너비로 축소
+   ========================================================================== */
+.profile-header {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    padding: 40px var(--container-padding);
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    max-width: var(--container-max-width); /* 헤더 자체를 1200px로 제한 */
+    margin: 0 auto; /* 중앙 정렬 */
+    border-radius: var(--border-radius); /* 둥근 모서리 추가 */
+}
+
+/* 프로필 헤더 배경 패턴 */
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="rgba(255,255,255,0.1)" cx="20" cy="20" r="2"/><circle fill="rgba(255,255,255,0.05)" cx="80" cy="80" r="3"/></svg>');
+    opacity: 0.3;
+}
+
+/* 프로필 헤더 컨테이너 */
+.profile-header .container {
+    max-width: 100%; /* 헤더 내에서 전체 너비 사용 */
+    margin: 0;
+    padding: 0;
+}
+
+.profile-banner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.profile-info {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.profile-details {
+    width: 100%;
+}
+
+/* 사용자 이름과 편집 아이콘 컨테이너 */
+.user-name-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.user-name {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* 프로필 편집 아이콘 */
+.edit-profile-icon {
+    width: 35px;
+    height: 35px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.edit-profile-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.edit-icon {
+    font-size: 18px;
+}
+
+.user-email {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.join-info {
+    font-size: 14px;
+    opacity: 0.8;
+    text-align: left;
+}
+
+/* ==========================================================================
+   대시보드 메인 섹션 - 프로필 헤더와 완전히 동일한 너비
+   ========================================================================== */
+.dashboard-main {
+    padding: 60px 0;
+}
+
+.dashboard-main .container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+/* 대시보드 그리드 레이아웃 */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 30px;
+    width: 100%;
+}
+
+/* 그리드 아이템 배치 */
+.purchase-history {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.sharing-management {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.waste-history {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.points-history {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* ==========================================================================
+   대시보드 카드 공통 스타일
+   ========================================================================== */
+.dashboard-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(45, 90, 61, 0.1);
+    height: fit-content;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(45, 90, 61, 0.15);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.card-header h3 {
+    color: var(--primary-green);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ==========================================================================
+   2. 구매 내역 섹션
+   ========================================================================== */
+.purchase-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: var(--light-gray);
+    border-radius: 8px;
+    transition: var(--transition-fast);
+}
+
+.stat-item:hover {
+    background: rgba(45, 90, 61, 0.05);
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--medium-gray);
+    font-weight: 500;
+}
+
+.recent-purchases h4 {
+    color: var(--primary-green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.purchase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.purchase-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.purchase-item:hover {
+    border-color: var(--accent-green);
+    background: rgba(45, 90, 61, 0.02);
+    transform: translateX(5px);
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+.item-date {
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.item-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.item-status.delivered {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.item-status.shipping {
+    background: rgba(23, 162, 184, 0.1);
+    color: var(--info-color);
+}
+
+/* ==========================================================================
+   3. 나눔 관리 섹션
+   ========================================================================== */
+.sharing-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.sharing-activities h4 {
+    color: var(--primary-green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.sharing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sharing-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.sharing-item:hover {
+    border-color: var(--accent-green);
+    background: rgba(45, 90, 61, 0.02);
+    transform: translateX(5px);
+}
+
+.item-location {
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.item-status.available {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.item-status.completed {
+    background: rgba(108, 117, 125, 0.1);
+    color: var(--medium-gray);
+}
+
+/* ==========================================================================
+   4. 분리배출 내역 섹션
+   ========================================================================== */
+.waste-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.waste-activities h4 {
+    color: var(--primary-green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.waste-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.waste-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.waste-item:hover {
+    border-color: var(--accent-green);
+    background: rgba(45, 90, 61, 0.02);
+    transform: translateY(-2px);
+}
+
+.waste-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
+}
+
+.waste-icon.plastic {
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+}
+
+.waste-icon.paper {
+    background: linear-gradient(135deg, #FF9800, #FFB74D);
+}
+
+.reward-points {
+    background: var(--primary-green);
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* ==========================================================================
+   5. 포인트 내역 섹션
+   ========================================================================== */
+.points-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.current-points,
+.points-change {
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.current-points {
+    background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+    color: var(--white);
+}
+
+.points-change {
+    background: var(--light-gray);
+}
+
+.points-amount {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.points-earned {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--success-color);
+    margin-bottom: 5px;
+}
+
+.points-label,
+.period-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.points-activities h4 {
+    color: var(--primary-green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.points-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.points-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.points-item:hover {
+    background: rgba(45, 90, 61, 0.05);
+    transform: translateX(5px);
+}
+
+.points-item.earn {
+    background: rgba(40, 167, 69, 0.1);
+    border-left: 4px solid var(--success-color);
+}
+
+.points-item.use {
+    background: rgba(220, 53, 69, 0.1);
+    border-left: 4px solid var(--danger-color);
+}
+
+.item-desc {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+.points-value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.points-item.earn .points-value {
+    color: var(--success-color);
+}
+
+.points-item.use .points-value {
+    color: var(--danger-color);
+}
+
+/* ==========================================================================
+   버튼 스타일
+   ========================================================================== */
+.btn-primary {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+}
+
+.btn-secondary {
+    background: var(--medium-gray);
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.btn-secondary:hover {
+    background: var(--dark-gray);
+    transform: translateY(-2px);
+}
+
+.btn-small {
+    background: var(--white);
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-small:hover {
+    background: var(--primary-green);
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   모달창 스타일
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideInScale 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px 20px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.modal-header h3 {
+    color: var(--primary-green);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--medium-gray);
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px 30px 30px;
+    border-top: 1px solid var(--light-gray);
+}
+
+/* 폼 스타일 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--dark-gray);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: var(--transition-fast);
+    background: var(--white);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.1);
+}
+
+.input-group input {
+    flex: 1;
+}
+
+/* ==========================================================================
+   Error 메시지 스타일
+   ========================================================================== */
+.validation-message {
+    color: var(--error-red);
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+.error-hidden {
+    display: none;
+}
+
+.currentPasswordError,
+.newPasswordError,
+.confirmPasswordError {
+    color: var(--error-red);
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 400;
+    display: none;
+}
+
+.error-message {
+    color: var(--error-red);
+}
+
+/* ==========================================================================
+   애니메이션
+   ========================================================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ==========================================================================
+   반응형 디자인 - 모든 화면에서 너비 일치 유지
+   ========================================================================== */
+
+/* 태블릿 (768px - 1199px) */
+@media (max-width: 1199px) {
+    .profile-header {
+        max-width: 100%;
+        margin: 0 var(--container-padding);
+    }
+
+    .profile-header .container,
+    .dashboard-main .container {
+        max-width: 100%;
+        padding: 0 var(--container-padding);
+    }
+
+    .profile-banner {
+        max-width: 100%;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .purchase-history,
+    .sharing-management,
+    .waste-history,
+    .points-history {
+        grid-column: 1;
+    }
+
+    .modal-content {
+        margin: 20px;
+    }
+}
+
+/* 모바일 (767px 이하) */
+@media (max-width: 767px) {
+    .profile-header {
+        margin: 0 15px;
+        padding: 30px 15px;
+        border-radius: 8px;
+    }
+
+    .profile-header .container,
+    .dashboard-main .container {
+        padding: 0 15px;
+    }
+
+    .dashboard-main {
+        padding: 40px 0;
+    }
+
+    .dashboard-card {
+        padding: 20px;
+    }
+
+    .user-name {
+        font-size: 24px;
+    }
+
+    .user-name-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .edit-profile-icon {
+        width: 30px;
+        height: 30px;
+        align-self: flex-start;
+    }
+
+    .purchase-stats,
+    .sharing-stats,
+    .waste-stats,
+    .points-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .modal-content {
+        margin: 10px;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+}
+
+/* 초소형 화면 (480px 이하) */
+@media (max-width: 480px) {
+    :root {
+        --container-padding: 15px;
+    }
+
+    .profile-header {
+        margin: 0 15px;
+        padding: 25px 15px;
+    }
+
+    .profile-header .container,
+    .dashboard-main .container {
+        padding: 0 15px;
+    }
+
+    .dashboard-card {
+        padding: 15px;
+    }
+
+    .waste-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .reward-points {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+}
+
+/* ==========================================================================
+   접근성 및 사용성 개선
+   ========================================================================== */
+
+/* 키보드 네비게이션 지원 */
+.edit-profile-icon:focus,
+.dashboard-card:focus-within,
+.purchase-item:focus,
+.sharing-item:focus,
+.waste-item:focus,
+.points-item:focus {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+}
+
+
+
+/* 애니메이션 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

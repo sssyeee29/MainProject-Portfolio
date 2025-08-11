@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 기본 메타 정보 설정 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>분리 배출 내역 </title>
+    
+    <!-- 외부 스타일시트 및 폰트 연결 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/disposalHistory.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" content="오류 내역을 효율적으로 관리하고 모니터링하는 관리자 전용 페이지">
+    <meta name="keywords" content="분리배출, 폐기물관리, AI분류, 관리자, 환경관리">
+</head>
+<body>
+    <!-- ========================================
+         헤더 네비게이션 섹션
+    ======================================== -->
+    <header class="admin-header">
+        <nav class="admin-navbar">
+            <div class="admin-nav-container">
+                <!-- 관리자 로고 -->
+                <div class="admin-logo">
+                    <a th:href="@{/main}" class="logo" onclick="goHome()">
+                        <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                    </a>
+                    <span class="admin-badge">ADMIN</span>
+                </div>
+
+                <!-- 관리자 메뉴 -->
+                <ul class="admin-nav-menu">
+                    <li><a th:href="@{/admin/main}">대시보드</a></li>
+                    <li><a th:href="@{/disposal/history}">분리 배출</a></li>
+                    <li><a th:href="@{/feedback/history}">오류 신고</a></li>
+                    <li><a th:href="@{/admin/member}">회원 관리</a></li>
+                    <li><a th:href="@{/env/list}">환경톡톡</a></li>
+                    <li><a th:href="@{/notice/list}">공지사항</a></li>
+                </ul>
+
+                <!-- 관리자 정보 -->
+                <div class="auth-buttons">
+                    <div class="admin-info">
+                        <span th:text="'관리자 ' + ${session.memberNickname} + '님'">관리자님</span>
+                        <a th:href="@{/member/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                </div>
+
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========================================
+         메인 컨텐츠 영역
+    ======================================== -->
+    <main class="main-content">
+        <!-- 페이지 헤더 -->
+        <section class="page-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-info">
+                        <h1>분리배출 내역 관리</h1>
+                        <p>AI 기반 분리배출 데이터를 실시간으로 모니터링하고 관리합니다</p>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- 통계 요약 섹션 -->
+        <section class="stats-summary">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-number" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</div>
+                            <div class="stat-label">총 처리 건수</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <div class="stat-number" th:text="${avgAiConfidence} + '%'">94.2%</div>
+                            <div class="stat-label">AI 분류 정확도</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <div class="stat-number" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">89</div>
+                            <div class="stat-label">오늘 처리량</div>
+                        </div>
+                    </div>
+                    <!--<div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-number" th:text="${#numbers.formatInteger(activeUsers, 3, 'COMMA')}">567</div>
+                            <div class="stat-label">활성 사용자</div>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+        </section>
+
+        <!-- 검색 및 필터 섹션 -->
+        <section class="filter-section">
+            <div class="container">
+                <div class="filter-container">
+                    <!-- 검색창 -->
+                    <div class="search-container">
+                        <div class="search-input-wrapper">
+                            <input type="text" name="keyword" id="search-input" th:value="${disposalHistoryPage.cri.keyword}" placeholder="회원 닉네임으로 검색..." class="search-input">
+                            <button id="search-btn" class="search-btn">🔍</button>
+                        </div>
+                    </div>
+
+                    <!-- 필터 옵션들 -->
+                    <div class="filter-options">
+                        <!-- 지역 필터 -->
+                        <div class="filter-group">
+                            <label for="region-filter">지역</label>
+                            <select id="region-filter" class="filter-select">
+                                <option value="">전체</option>
+                                <option value="강남구">강남구</option>
+                                <option value="강동구">강동구</option>
+                                <option value="강북구">강북구</option>
+                                <option value="강서구">강서구</option>
+                                <option value="관악구">관악구</option>
+                                <option value="광진구">광진구</option>
+                                <option value="구로구">구로구</option>
+                                <option value="금천구">금천구</option>
+                                <option value="노원구">노원구</option>
+                                <option value="도봉구">도봉구</option>
+                                <option value="동대문구">동대문구</option>
+                                <option value="동작구">동작구</option>
+                                <option value="마포구">마포구</option>
+                                <option value="서대문구">서대문구</option>
+                                <option value="서초구">서초구</option>
+                                <option value="성동구">성동구</option>
+                                <option value="성북구">성북구</option>
+                                <option value="송파구">송파구</option>
+                                <option value="양천구">양천구</option>
+                                <option value="영등포구">영등포구</option>
+                                <option value="용산구">용산구</option>
+                                <option value="은평구">은평구</option>
+                                <option value="종로구">종로구</option>
+                                <option value="중구">중구</option>
+                                <option value="중랑구">중랑구</option>
+                            </select>
+                        </div>
+
+                        <!-- 분류 품목 필터 -->
+                        <div class="filter-group">
+                            <label for="category-filter">분류</label>
+                            <select id="category-filter" class="filter-select">
+                                <option value="">전체</option>
+                                <option value="chair">chair</option>
+                                <option value="desk_cabinet">desk_cabinet</option>
+                                <option value="electronics">electronics</option>
+                                <option value="etc_misc">etc_misc</option>
+                                <option value="mirror_board">mirror_board</option>
+                                <option value="refrigerator">refrigerator</option>
+                                <option value="sink_stove">sink_stove</option>
+                                <option value="small_item">small_item</option>
+                                <option value="sofa_mat">sofa_mat</option>
+                                <option value="sport_toy">sport_toy</option>
+                                <option value="washmachine">washmachine</option>
+                            </select>
+                        </div>
+
+                        <!-- 정확도 필터 -->
+                        <div class="filter-group">
+                            <label for="accuracy-filter">AI 신뢰도</label>
+                            <select id="accuracy-filter" class="filter-select">
+                                <option value="">전체</option>
+                                <option value="high">높음 (90% 이상)</option>
+                                <option value="medium">보통 (70-90%)</option>
+                                <option value="low">낮음 (70% 미만)</option>
+                            </select>
+                        </div>
+
+                        <!-- 날짜 필터 -->
+                        <div class="filter-group">
+                            <label for="date-filter">기간</label>
+                            <select id="date-filter" class="filter-select">
+                                <option value="">전체 기간</option>
+                                <option value="today">오늘</option>
+                                <option value="week">최근 1주일</option>
+                                <option value="month">최근 1개월</option>
+                                <option value="3month">최근 3개월</option>
+                            </select>
+                        </div>
+
+                        <!-- 필터 초기화 -->
+                        <div class="filter-actions">
+                            <button id="reset-filter" class="btn btn-outline">🔄 초기화</button>
+                            <button id="apply-filter" class="btn btn-secondary">🔍 적용</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 분리배출 내역 테이블 섹션 -->
+        <section class="table-section">
+            <div class="container">
+                <div class="table-container">
+                    <!-- 테이블 헤더 정보 -->
+                    <div class="table-header">
+                        <div class="table-info">
+                            <span class="total-count">총 <span id="total-items" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>건</span>
+                            <span class="filter-count" th:if="${isFiltered}">
+                                (필터링된 결과: <span id="filtered-items" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">89</span>건)
+                            </span>
+                        </div>
+                        <div class="table-actions">
+                            <select id="page-size" class="page-size-select">
+                                <option value="10">10개씩 보기</option>
+                                <option value="20">20개씩 보기</option>
+                                <option value="50">50개씩 보기</option>
+                                <option value="100">100개씩 보기</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 분리배출 내역 테이블 -->
+                    <div class="table-wrapper">
+                        <table class="waste-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="photo">이미지</th>
+                                    <th class="sortable" data-sort="ai-prediction">AI 예측</th>
+                                    <th class="sortable" data-sort="final-category">2차 분류 품목</th>
+                                    <th class="sortable" data-sort="region">지역</th>
+                                    <th class="sortable" data-sort="nickname">회원 닉네임</th>
+                                    <th class="sortable" data-sort="date">등록일시</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waste-table-body">
+                                <!-- 서버에서 전달받은 분리배출 내역 데이터를 반복문으로 출력 -->
+                                <tr th:each="item, iterStat : ${adminHistory}"
+                                    th:data-id="${item.disposalHistoryId}"
+                                    class="table-row">
+                                    <!-- 사진 -->
+                                    <td>
+                                        <div class="image-cell">
+                                            <img th:src="${item.disposalImgUrl}"
+                                                 th:alt="'분리배출 사진 ' + ${item.disposalHistoryId}"
+                                                 class="waste-image">
+                                                 <!--th:onclick="|openModal(${item.disposalHistoryId})|"
+                                                 onerror="this.src='/img/default-waste.png'"-->
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- AI 예측 -->
+                                    <td>
+                                        <div class="ai-prediction-cell">
+                                            <span class="ai-prediction-badge"
+                                                  th:classappend="${item.aiPrediction != null} ? ${item.aiPrediction.toLowerCase()} : 'none'"
+                                                  th:text="${item.aiPrediction != null} ? ${item.aiPrediction} : '예측 불가'">AI 예측 불가</span>
+                                            <div class="confidence-score">
+                                                <span class="confidence-text" th:text="'신뢰도: ' + ${item.aiConfidence} + '%'">신뢰도: 94.2%</span>
+                                                <div class="confidence-bar">
+                                                    <div class="confidence-fill" 
+                                                         th:style="'width: ' + ${item.aiConfidence} + '%'"
+                                                         th:classappend="${item.aiConfidence >= 90 ? 'high' : (item.aiConfidence >= 70 ? 'medium' : 'low')}"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- 2차 분류 품목 -->
+                                    <td>
+                                        <span class="category-badge"
+                                              th:classappend="${item.finalItem != null} ? ${item.finalItem.toLowerCase()} : 'none'"
+                                              th:text="${item.finalItem != null} ? ${item.finalItem} : '예측 불가'">AI 예측 불가</span>
+                                        <!-- AI 예측과 다른 경우 표시 -->
+                                        <!--<div th:if="${item.aiPrediction != item.finalItem}" class="category-changed">
+                                            <span class="changed-indicator">✏️ 수정됨</span>
+                                        </div>-->
+                                    </td>
+                                    
+                                    <!-- 지역 -->
+                                    <td>
+                                        <span class="region-badge" th:text="${item.regionGu}">서울</span>
+                                    </td>
+                                    
+                                    <!-- 회원 닉네임 -->
+                                    <td>
+                                        <div class="user-cell">
+                                            <span class="user-nickname" th:text="${item.nickname}">환경지킴이123</span>
+                                            <!-- 회원 등급 배지 -->
+                                            <span class="user-grade" 
+                                                  th:if="${item.role}"
+                                                  th:classappend="${item.role != null} ? ${item.role.toLowerCase()} : ''"
+                                                  th:text="${item.role}">VIP</span>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- 등록일시 -->
+                                    <td>
+                                        <div class="date-cell">
+                                            <span class="date-text" 
+                                                  th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd')}">2025-01-15</span>
+                                            <span class="time-text"
+                                                  th:text="${#temporals.format(item.createdAt, 'HH:mm')}">14:30</span>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- 관리 버튼 -->
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-view" 
+                                                    th:onclick="|openModal(${item.disposalHistoryId})|"
+                                                    title="상세보기">
+                                                👁️
+                                            </button>
+                                            <button class="btn-action btn-edit" 
+                                                    th:onclick="|editItem(${item.disposalHistoryId})|"
+                                                    title="수정">
+                                                ✏️
+                                            </button>
+                                            <button class="btn-action btn-delete" 
+                                                    th:onclick="|confirmDelete(${item.disposalHistoryId})|"
+                                                    title="삭제">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 로딩 상태 표시 -->
+                    <div id="loading" class="loading-state hidden">
+                        <div class="loading-spinner"></div>
+                        <p>데이터를 불러오는 중...</p>
+                    </div>
+
+                    <!-- 데이터가 없을 때 표시 -->
+                    <div id="no-data" class="no-data-state" th:classappend="${#lists.isEmpty(adminHistory) ? '' : 'hidden'}">
+                        <div class="no-data-icon">📭</div>
+                        <h3>표시할 데이터가 없습니다</h3>
+                        <p>검색 조건을 변경하거나 필터를 초기화해보세요.</p>
+                    </div>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div class="pagination-container">
+                    <div class="pagination" id="pagination">
+                        <!-- 이전 버튼 -->
+                        <a th:if="${disposalHistoryPage.isPrev()}"
+                           th:href="@{/disposal/history(
+                                      pageNum=${disposalHistoryPage.startPage - 1},
+                                      amount=${disposalHistoryPage.cri.amount},
+                                      type=${disposalHistoryPage.cri.type},
+                                      keyword=${disposalHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           class="page-btn">◀ 이전</a>
+                        <span th:unless="${disposalHistoryPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
+
+                        <!-- 페이지 번호들 -->
+                        <a class="page-number"
+                           th:each="num : ${#numbers.sequence(disposalHistoryPage.startPage, disposalHistoryPage.endPage)}"
+                           th:classappend="${disposalHistoryPage.cri.pageNum == num} ? 'active' : ''"
+                           th:href="@{/disposal/history(
+                                      pageNum=${num},
+                                      amount=${disposalHistoryPage.cri.amount},
+                                      type=${disposalHistoryPage.cri.type},
+                                      keyword=${disposalHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           th:text="${num}">1</a>
+
+                        <!-- 다음 버튼 -->
+                        <a th:if="${disposalHistoryPage.isNext()}"
+                           th:href="@{/disposal/history(
+                                      pageNum=${disposalHistoryPage.endPage + 1},
+                                      amount=${disposalHistoryPage.cri.amount},
+                                      type=${disposalHistoryPage.cri.type},
+                                      keyword=${disposalHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           class="page-btn">다음 ▶</a>
+                        <span th:unless="${disposalHistoryPage.isNext()}" class="page-btn disabled">다음 ▶</span>
+                    </div>
+                    <!-- 페이지 정보 -->
+                    <div class="page-info">
+                        <span>페이지 <span th:text="${disposalHistoryPage.cri.pageNum}">1</span> / <span th:text="${disposalHistoryPage.getEndPage()}">10</span></span>
+                        <span>총 <span th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>개 항목</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================
+         상세보기/수정 모달
+    ======================================== -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <!-- 모달 헤더 -->
+            <div class="modal-header">
+                <h2>분리배출 상세 정보</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+
+            <!-- 모달 본문 -->
+            <div class="modal-body">
+                <!-- 이미지 섹션 -->
+                <div class="modal-image-section">
+                    <div class="image-container">
+                        <img id="modal-image" src="" alt="분리배출 사진" class="modal-image">
+                    </div>
+<!--                    <div class="image-info">
+                        <p id="image-filename" class="filename">파일명: image_001.jpg</p>
+                        <p id="image-upload-date" class="upload-date">업로드: 2025-01-15 14:30</p>
+                    </div>-->
+                </div>
+
+                <!-- 정보 섹션 -->
+                <div class="modal-info-section">
+                    <div class="info-row">
+                        <label>AI 예측 결과</label>
+                        <div class="ai-result">
+                            <span id="modal-ai-prediction" class="ai-prediction-large">플라스틱</span>
+                            <span id="modal-confidence" class="confidence-large">신뢰도: 94.2%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <label>2차 분류 품목</label>
+                        <span id="modal-category" class="info-value">small_item</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <label>지역</label>
+                        <span id="modal-region" class="info-value">서울시 강남구</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <label>회원 정보</label>
+                        <div class="member-info">
+                            <span id="modal-nickname" class="member-nickname">환경지킴이123</span>
+                            <span id="modal-member-grade" class="member-grade">VIP</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <label>등록일시</label>
+                        <span id="modal-date" class="info-value">2025-01-15 14:30:25</span>
+                    </div>
+
+                    <div class="info-row">
+                        <label for="modal-memo">관리자 메모</label>
+                        <textarea id="modal-memo" 
+                                  placeholder="관리자 메모를 입력하세요..." 
+                                  rows="3" 
+                                  class="memo-textarea"></textarea>
+                    </div>
+
+                    <div class="info-row">
+                        <label>처리 상태</label>
+                        <select id="modal-status" class="status-select">
+                            <option value="PENDING">검토 중</option>
+                            <option value="APPROVED">승인</option>
+                            <option value="REJECTED">반려</option>
+                            <option value="COMPLETED">완료</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="modal-footer">
+                <!--<button id="save-changes" class="btn btn-primary">변경사항 저장</button>
+                <button id="delete-record" class="btn btn-danger">삭제</button>-->
+                <button id="close-modal" class="btn btn-secondary">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         푸터 섹션 (간소화)
+    ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>관리자 전용 분리배출 내역 관리 시스템</p>
+                </div>
+                
+                <div class="footer-section">
+                    <div class="footer-links">
+                        <a th:href="@{/admin}">관리자 대시보드</a>
+                        <a th:href="@{/admin/settings}">시스템 설정</a>
+                        <a th:href="@{/admin/help}">도움말</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/disposalHistory.js}"></script>
+    
+    <!-- 서버 데이터를 JavaScript로 전달 -->
+<script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var wasteHistoryData = /*[[${adminHistory}]]*/ [];
+        var currentUser = /*[[${session.member}]]*/ null;
+        var paginationData = {
+            currentPage: /*[[${disposalHistoryPage.cri.pageNum}]]*/ 1,
+            totalPages: /*[[${disposalHistoryPage}]]*/ 1,
+            pageSize: /*[[${disposalHistoryPage.cri.amount}]]*/ 10,
+            totalElements: /*[[${disposalHistoryPage.cri.amount}]]*/ 0
+        };
+        
+        // 전역 변수로 설정하여 JavaScript 함수들에서 사용
+        window.wasteHistoryData = wasteHistoryData;
+        window.currentUser = currentUser;
+        window.paginationData = paginationData;
+        
+        console.log('🌱 분리배출 내역 관리 페이지가 로드되었습니다.');
+    </script>
+</body>
+</html>

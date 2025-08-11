@@ -1,0 +1,280 @@
+<!--
+환경톡톡 게시글 등록 페이지
+환경 관련 게시글을 작성할 수 있는 입력 폼, 에디터, 이미지 업로드, 이모지, 미리보기 등의 기능 제공
+사용자 정보 및 작성 통계는 사이드바에 표시됨
+@author : eunji
+@fileName : register.html
+@since : 250721
+@history
+    - 250721 | yukyeong | 단순 테스트용 글쓰기 폼 임시 작성
+    - 250730 | yukyeong | 정식 글쓰기 페이지 전면 개편:
+                          - 제목, 내용, 카테고리, 파일첨부 등 입력 UI 구성
+                          - 미리보기/이모지 모달 추가
+                          - 사이드바에 사용자 통계 표시
+                          - env-register.js와 연동하여 유효성 검사 및 등록 처리
+                          - 스크립트 설정값(maxFileSize, emoji, validationRules 등) 타임리프로 연동
+    - 250731 | yukyeong | Toast UI Editor 본문 입력 적용:
+                          - 기존 textarea → toastui.Editor로 교체
+                          - addImageBlobHook으로 이미지 본문 자동 삽입 처리
+                          - 작성 내용은 hiddenContent에 저장 후 전송
+                          - 기존 파일 첨부 영역 UI는 주석 처리됨
+    - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
+    - 250802 | yukyeong | 본문 글자 수 제한 2000자 → 5000자로 확장
+    - 250811 | yukyeong | 본문 이미지 업로드 개수 제한 기능 추가:
+                          - MAX_CONTENT_IMAGES 상수 도입(기본 5장)
+                          - addImageBlobHook에서 현재 본문 이미지 개수 확인 후 초과 시 업로드 차단
+
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='환경톡톡 - 새 글 쓰기'">
+    <title>환경톡톡</title>
+    <th:block layout:fragment="css">
+        <!-- Toast UI Editor 스타일 CDN 추가 -->
+        <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+        <link rel="stylesheet" th:href="@{/css/write-post-style.css}">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 콘텐츠 -->
+<div layout:fragment="content" class="fade-in">
+
+    <!-- 현재 위치 표시 (빵부스러기) -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a th:href="@{/}">🏠</a>
+                <span>></span>
+                <a th:href="@{/eco-talk}">환경 톡톡</a>
+                <span>></span>
+                <span class="current">새 글 쓰기</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <div class="page-header-content">
+                <h1>✏️ 새 글 쓰기</h1>
+                <p>환경에 대한 소중한 경험과 생각을 나누어 주세요</p>
+            </div>
+        </section>
+
+        <!-- Write Form Container -->
+        <div class="write-container">
+            <!-- Main Write Form -->
+            <div class="write-main fade-in">
+                <!-- 글 작성 폼 - 타임리프 객체 바인딩 -->
+                <form id="writeForm" class="write-form"
+                      method="post" enctype="multipart/form-data">
+
+                    <!-- Category Selection -->
+                    <div class="form-section">
+                        <label class="form-label">카테고리</label>
+                        <select id="categorySelect" name="categoryId" class="form-select" required>
+                            <option value="">카테고리를 선택하세요</option>
+                            <!-- JS로 동적 렌더링 -->
+                        </select>
+                        <span class="error-message" id="categoryError"></span>
+                    </div>
+
+                    <!-- Title Input -->
+                    <div class="form-section">
+                        <label class="form-label" for="postTitle">제목</label>
+                        <input type="text" id="postTitle" name="title" class="form-input title-input"
+                               placeholder="제목을 입력하세요 (최대 255자)" maxlength="255" required>
+                        <div class="char-count"><span id="titleCount">0</span>/255</div>
+                        <span class="error-message" id="titleError"></span>
+                    </div>
+
+                    <!-- Content Editor -->
+                    <div class="form-section">
+                        <label class="form-label" for="editor">내용</label>
+                        <!-- Toast UI Editor가 들어갈 영역 (기존 클래스 유지) -->
+                        <div id="editor" class="form-textarea content-editor"></div>
+                        <!-- 실제 form 전송용 hidden input -->
+                        <input type="hidden" name="content" id="hiddenContent" />
+                        <!-- 글자 수 카운트 유지 -->
+                        <div class="char-count"><span id="contentCount">0</span>/5000</div>
+                        <span class="error-message" id="contentError"></span>
+                    </div>
+
+                    <!--                    &lt;!&ndash; File Upload &ndash;&gt;-->
+                    <!--                    <div class="form-section">-->
+                    <!--                        <label class="form-label">첨부파일</label>-->
+                    <!--                        <div class="upload-area" id="uploadArea">-->
+                    <!--                            <div class="upload-content">-->
+                    <!--                                <div class="upload-icon">📎</div>-->
+                    <!--                                <div class="upload-text">-->
+                    <!--                                    <strong>파일을 드래그하거나 클릭하여 업로드</strong>-->
+                    <!--                                    <p>이미지 파일 (JPG, PNG, GIF) | 최대 10MB</p>-->
+                    <!--                                </div>-->
+                    <!--                            </div>-->
+                    <!--                            <input type="file" id="fileInput" name="envImgFiles" multiple accept="image/*" style="display: none;">-->
+                    <!--                        </div>-->
+                    <!--                        <div class="uploaded-files" id="uploadedFiles"></div>-->
+                    <!--                        <span class="error-message" id="fileError"></span>-->
+                    <!--                    </div>-->
+
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="previewPost()">📄 미리보기</button>
+                        <button type="button" class="btn btn-danger" onclick="location.href='/env/list'">❌ 취소</button>
+                        <button type="submit" class="btn btn-primary">📝 등록하기</button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="previewModal" style="display: none;">
+        <div class="modal-content preview-modal">
+            <div class="modal-header">
+                <h3>📄 미리보기</h3>
+                <button class="modal-close" onclick="closePreview()">×</button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Preview content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePreview()">닫기</button>
+                <button class="btn btn-primary" onclick="submitPost()">등록하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이모지 선택 모달 -->
+    <div class="modal-overlay" id="emojiModal" style="display: none;">
+        <div class="modal-content emoji-modal">
+            <div class="modal-header">
+                <h3>😊 이모지 선택</h3>
+                <button class="modal-close" onclick="closeEmojiModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="emoji-categories">
+                    <button class="emoji-category active" data-category="nature">🌱 자연</button>
+                    <button class="emoji-category" data-category="recycle">♻️ 재활용</button>
+                    <button class="emoji-category" data-category="energy">⚡ 에너지</button>
+                    <button class="emoji-category" data-category="face">😊 표정</button>
+                </div>
+                <div class="emoji-grid" id="emojiGrid">
+                    <!-- 이모지 목록이 JavaScript로 동적 생성됨 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/write-post-script.js}"></script>
+    <script th:src="@{/js/env-register.js}"></script>
+
+    <!-- Toast UI Editor JS CDN 추가 -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
+
+    <!-- 타임리프 변수 및 에디터 설정 -->
+    <script th:inline="javascript">
+
+        const MAX_CONTENT_IMAGES = 5;
+
+        var maxFileSize = /*[[${maxFileSize}]]*/ 10485760; // 10MB
+        var maxFileCount = /*[[${maxFileCount}]]*/ 5;
+        var fileUploadUrl = /*[[@{/api/env/upload-temp}]]*/ '/api/env/upload-temp';
+
+
+        // 에디터 설정
+        var editorConfig = {
+            maxLength: 5000,
+            allowedTags: ['b', 'i', 'u', 'ul', 'ol', 'li', 'a'],
+            emojiCategories: {
+                nature: ['🌱', '🌳', '🌍', '🌿', '🌱', '🍃', '🌾', '🌸'],
+                recycle: ['♻️', '🗂️', '📦', '🛒', '🏭', '⚙️'],
+                energy: ['⚡', '🔋', '💡', '☀️', '🌊', '💨'],
+                face: ['😊', '😍', '🤔', '😢', '😡', '👍', '👎', '❤️']
+            }
+        };
+
+        // 폼 검증 규칙
+        var validationRules = {
+            title: {
+                required: true,
+                maxLength: 255,
+                message: '제목을 입력해주세요 (최대 255자)'
+            },
+            content: {
+                required: true,
+                maxLength: 5000,
+                message: '내용을 입력해주세요 (최대 5000자)'
+            },
+            categoryId: {
+                required: true,
+                message: '카테고리를 선택해주세요'
+            }
+        };
+
+        // Toast UI Editor 초기화
+        const editor = new toastui.Editor({
+            el: document.querySelector('#editor'),
+            height: '500px',
+            initialEditType: 'wysiwyg',
+            previewStyle: 'vertical',
+            hooks: {
+                // ✅ 업로드 '순간'에 개수 제한
+                addImageBlobHook: async (blob, callback) => {
+                    try {
+                        // 현재 본문 내 이미지 개수 계산
+                        const html = editor.getHTML();
+                        const currentCount = (html.match(/<img\s/gi) || []).length;
+
+                        if (currentCount >= MAX_CONTENT_IMAGES) {
+                            alert(`본문 이미지는 최대 ${MAX_CONTENT_IMAGES}장까지 가능합니다.`);
+                            return; // 업로드 중단
+                        }
+
+                        const formData = new FormData();
+                        formData.append('file', blob);
+
+                        const res = await fetch('/api/env/upload-temp', {
+                            method: 'POST',
+                            body: formData
+                        })
+
+                        if (!res.ok) {
+                            throw new Error('이미지 업로드 실패');
+                        }
+
+                        const result = await res.json();
+                        const imageUrl = `/ecovery/env/${result.fileName}`;
+                        callback(imageUrl, '업로드 이미지');
+
+                    } catch (err) {
+                        console.error("이미지 업로드 실패", err);
+                        alert("이미지 업로드 중 오류가 발생했습니다.");
+                    }
+                }
+            }
+        });
+
+        // form 제출 전 에디터 값 설정
+        function beforeSubmit() {
+            document.getElementById("hiddenContent").value = editor.getHTML();
+            document.getElementById("writeForm").submit();
+        }
+    </script>
+</th:block>
+</body>
+</html>

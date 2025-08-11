@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ecovery.mapper.FreeImgMapper">
+
+<!--
+ * 무료나눔 이미지 Mapper XML
+ * 게시글과 연결된 이미지 관련 SQL문을 정의한 MyBatis 매퍼 파일
+ *
+ * @author : yeonsu
+ * @fileName : FreeImgMapper.xml
+ * @since : 250714
+-->
+
+    <!-- 이미지 등록 -->
+    <insert id="insert" parameterType="com.ecovery.domain.FreeImgVO" useGeneratedKeys="true" keyProperty="freeImgId">
+        INSERT INTO free_img (
+                              free_id, img_name,
+                              ori_img_name, img_url, repimg_yn
+        )
+        VALUES (#{freeId}, #{imgName}, #{oriImgName}, #{imgUrl}, #{repImgYn})
+    </insert>
+
+    <!-- 이미지 수정시 이미지 교체 -->
+    <update id="update" parameterType="com.ecovery.domain.FreeImgVO">
+        UPDATE free_img
+        SET img_name = #{imgName},
+            ori_img_name = #{oriImgName},
+            img_url = #{imgUrl},
+            repimg_yn = #{repImgYn},
+            created_at = now()
+        WHERE free_img_id = #{freeImgId}
+    </update>
+
+    <!-- 게시글에 연결된 전체 이미지 조회 -->
+    <select id="getFreeImgList" resultType="com.ecovery.domain.FreeImgVO">
+        SELECT free_img_id, free_id, img_name, ori_img_name, img_url, repimg_yn, created_at
+        FROM free_img
+        WHERE free_id = #{freeId}
+        ORDER BY free_img_id
+    </select>
+
+    <!-- 이미지 수정을 위한 delete -->
+    <delete id="delete" parameterType="Long">
+        DELETE FROM free_img
+        WHERE free_id = #{freeId}
+    </delete>
+
+    <!-- 이미지 번호로 1장 조회 -->
+    <select id="getById" resultType="com.ecovery.dto.FreeImgDto">
+        SELECT free_img_id AS freeImgId,
+               free_id AS freeId,
+               img_name AS imgName,
+               ori_img_name AS oriImgName,
+               img_url AS imgUrl,
+               repimg_yn AS repImgYn
+        FROM free_img
+        WHERE free_img_id = #{freeImgId}
+    </select>
+
+    <!-- 대표 이미지 조회 (썸네일 용) -->
+    <select id="getRepImg" resultType="com.ecovery.dto.FreeImgDto">
+        SELECT *
+        FROM free_img
+        WHERE free_id = #{freeId} AND repimg_yn = 'Y'
+        LIMIT 1
+    </select>
+
+    <!-- 대표 이미지로 설정  -->
+    <update id="setRepImg">
+        UPDATE free_img
+        SET repimg_yn = 'Y'
+        WHERE free_img_id = #{freeImgId}
+    </update>
+
+    <!-- 특정 게시글에 속한 모든 이미지 삭제 -->
+    <!--<delete id="deleteAllByFreeId" parameterType="Long">
+        DELETE FROM free_img
+        WHERE free_id = #{freeId}
+    </delete>-->
+</mapper>

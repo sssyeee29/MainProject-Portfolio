@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+* 구매이력 조회 Mapper XML
+* 구매이력 조회 및 상세 내용 확인을 위한 MyBatis 매퍼 파일
+* @author : 방희경
+* @fileName : OrderMapper.xml
+* @since : 250723
+* @history
+     - 250723 | sehui | 주문 저장 기능 추가
+     - 250724 | sehui | OrderVO에 주문 고유번호 order_uuid 컬럼 추가
+     - 250725 | sehui | 주문 id 조회 기능 추가
+     - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
+     - 250728 | sehui | 주문 단건 조회 기능 추가
+     - 250728 | sehui | 주문 저장, 주문 단건 조회 기능에 totalPrice 추가
+     - 250730 | 방희경 | 주문조회에서 상세설명을 보기 위해 변수 추가
+     - 250731 | 방희경 | 주문조회에서 간략히 정보를 보여주고 상세보기 클릭 시 상세화면으로 넘어가는 로직 구현
+-->
+
+<mapper namespace="com.ecovery.mapper.OrderMapper">
+    <!-- 주문 + 주문상품 + 결제 정보 포함 -->
+    <resultMap id="orderHistoryMap" type="com.ecovery.dto.OrderHistoryDto">
+        <id property="orderId" column="order_id"></id>
+        <result property="orderStatus" column="order_status"></result>
+        <result property="createdAt" column="created_at"></result>
+        <result property="updatedAt" column="updated_at"></result>
+        <result property="name" column="name"></result>
+        <result property="zipcode" column="zipcode"></result>
+        <result property="roadAddress" column="road_address"></result>
+        <result property="detailAddress" column="detail_address"></result>
+        <result property="phoneNumber" column="phone_number"></result>
+        <result property="orderUuid" column="order_uuid"></result>
+        <result property="memberId" column="member_id"></result>
+
+        <!-- 결제 정보 -->
+        <result property="paymentId" column="payment_id"></result>
+        <result property="payMethod" column="pay_method"></result>
+        <result property="payAmount" column="pay_amount"></result>
+        <result property="payStatus" column="pay_status"></result>
+        <result property="paidAt" column="paid_at"></result>
+
+        <collection property="orderItems" ofType="com.ecovery.dto.OrderItemDto">
+            <result property="orderItemId" column="oi_order_item_id"></result>
+            <result property="itemId" column="i_item_id"></result>
+            <result property="itemName" column="i_item_name"></result>
+            <result property="itemDetail" column="i_item_detail"></result>
+            <result property="price" column="i_price"></result>
+            <result property="count" column="oi_count"></result>
+            <result property="orderPrice" column="oi_order_price"></result>
+            <result property="itemImgId" column="ii_item_img_id"></result>
+            <result property="imgName" column="ii_img_name"></result>
+            <result property="imgUrl" column="ii_img_url"></result>
+        </collection>
+    </resultMap>
+    
+    <!-- 주문 정보 -->
+    <resultMap id="orderResultMap" type="com.ecovery.domain.OrderVO">
+        <id property="orderId" column="order_id" />
+        <result property="orderUuid" column="order_uuid" />
+        <result property="memberId" column="member_id" />
+        <result property="orderStatus" column="order_status" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="name" column="name" />
+        <result property="zipcode" column="zipcode" />
+        <result property="roadAddress" column="road_address" />
+        <result property="detailAddress" column="detail_address" />
+        <result property="phoneNumber" column="phone_number" />
+        <result property="totalPrice" column="total_price" />
+    </resultMap>
+
+    <!-- 주문정보 간략하게 보는 1차 화면 -->
+    <resultMap id="orderSummaryMap" type="com.ecovery.dto.OrderHistoryDto">
+        <id property="orderId" column="order_id" />
+        <result property="orderUuid" column="order_uuid" />
+        <result property="orderStatus" column="order_status" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="payAmount" column="pay_amount" />
+        <result property="memberId" column="member_id"></result>
+    </resultMap>
+
+    <!-- 주문정보 간략하게 보는 1차 화면 -->
+    <select id="findOrderSummaries" parameterType="long" resultMap="orderHistoryMap">
+        SELECT
+            o.order_id,
+            o.order_status,
+            o.created_at,
+            o.updated_at,
+            o.name,
+            o.zipcode,
+            o.road_address,
+            o.detail_address,
+            o.phone_number,
+            o.order_uuid,
+            o.member_id,
+
+            p.payment_id,
+            p.pay_method,
+            p.pay_amount,
+            p.pay_status,
+            p.paid_at,
+
+            oi.order_item_id AS oi_order_item_id,
+            oi.item_id AS oi_item_id,
+            i.item_name AS i_item_name,
+            i.item_detail AS i_item_detail,
+            i.price AS i_price,
+            oi.count AS oi_count,
+            oi.order_price AS oi_order_price,
+            ii.item_img_id AS ii_item_img_id,
+            ii.img_name AS ii_img_name,
+            ii.img_url AS ii_img_url
+        FROM orders o
+            LEFT JOIN order_item oi ON o.order_id = oi.order_id
+            LEFT JOIN item i ON oi.item_id = i.item_id
+            LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
+            LEFT JOIN payment p ON o.order_id = p.order_id
+
+        where o.member_id = #{memberId}
+        order by o.created_at DESC, oi.order_item_id asc
+    </select>
+
+    <!-- 주문 저장 -->
+    <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
+        insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number, total_price)
+        values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber}, #{totalPrice})
+    </insert>
+
+    <!-- 주문 id 조회 -->
+    <select id="findOrderIdByOrderUuid" resultType="Long">
+        select order_id
+        from orders
+        where order_uuid = #{orderUuid}
+    </select>
+
+    <!-- 주문 상태 변경 -->
+    <update id="updateOrderStatus" parameterType="map">
+        update orders
+        set order_status = #{orderStatus},
+            updated_at = NOW()
+        where order_id = #{orderId}
+    </update>
+
+    <!-- 주문 단건 조회 -->
+    <select id="findOrderById" resultType="com.ecovery.domain.OrderVO">
+        SELECT * FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- 특정 주문의 상세 내역 조회 -->
+    <select id="findOrdersItems" parameterType="long" resultMap="orderHistoryMap">
+        SELECT
+            o.order_id,
+            o.order_status,
+            o.created_at,
+            o.updated_at,
+            o.name,
+            o.zipcode,
+            o.road_address,
+            o.detail_address,
+            o.phone_number,
+            o.order_uuid,
+            o.member_id,
+
+            p.payment_id,
+            p.pay_method,
+            p.pay_amount,
+            p.pay_status,
+            p.paid_at,
+
+            oi.order_item_id AS oi_order_item_id,
+            oi.item_id AS oi_item_id,
+            i.item_name AS i_item_name,
+            i.item_detail AS i_item_detail,
+            i.price AS i_price,
+            oi.count AS oi_count,
+            oi.order_price AS oi_order_price,
+            ii.item_img_id AS ii_item_img_id,
+            ii.img_name AS ii_img_name,
+            ii.img_url AS ii_img_url
+        FROM orders o
+                 LEFT JOIN order_item oi ON o.order_id = oi.order_id
+                 LEFT JOIN item i ON oi.item_id = i.item_id
+                 LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
+                 LEFT JOIN payment p ON o.order_id = p.order_id
+
+        where o.order_id = #{orderId}
+        order by oi.order_item_id asc
+    </select>
+</mapper>

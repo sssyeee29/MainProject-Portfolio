@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    에코마켓 상품 카테고리 Mapper.xml
+    @author : sehui
+    @fileName : CategoryMapper.xml
+    @since : 250718
+    @history
+     - 250718 | sehui | 카테고리 목록 조회 기능 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.CategoryMapper">
+
+    <!--  카테고리 목록 조회 -->
+    <select id="findAllCategories" resultType="com.ecovery.dto.CategoryDto">
+        select * from category where category_id > 0
+    </select>
+
+</mapper>

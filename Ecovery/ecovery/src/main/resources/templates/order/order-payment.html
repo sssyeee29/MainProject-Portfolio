@@ -1,0 +1,230 @@
+<!--
+    에코마켓 주문/결제 페이지
+    @author : sehui
+    @fileName : order-payment.html
+    @since : 250801
+    @history
+     - 250801 | sehui | 에코마켓 상품 상세 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250801 | sehui | 교환/반품, 주문 취소 확인 모달 삭제
+     - 250801 | sehui | 서버에서 전달받은 DTO를 JS 전달하기 위해 <input> 추가
+     - 250802 | sehui | 포인트 내역 <div> 삭제
+     - 250804 | sehui | 포트원 결제 API 스크립트 추가
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='에코마켓'">
+    <title>에코마켓 주문/결제</title>
+
+    <!-- 추가 css -->
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/order-payment.css}">
+    </th:block>
+
+</head>
+<body>
+<!-- 본문 fragment -->
+<div layout:fragment="content">
+    <!-- 메인 콘텐츠 영역 -->
+    <main id="mainContent">
+
+        <!-- 주문 상품 정보 JSON을 JS에 전달 (숨김 처리) -->
+        <input type="hidden" id="orderItemRequests" th:value="${orderItemRequests}">
+
+        <!-- 페이지 상단 네비게이션 (breadcrumb) -->
+        <section class="breadcrumb-section">
+            <div class="container">
+                <nav class="breadcrumb">
+                    <a th:href="@{/}">홈</a>
+                    <span class="breadcrumb-separator">></span>
+                    <a th:href="@{/mypage}">마이페이지</a>
+                    <span class="breadcrumb-separator">></span>
+                    <span class="current-page">주문/결제</span>
+                </nav>
+            </div>
+        </section>
+
+        <!-- 주문상세 페이지 헤더 -->
+        <section class="order-header">
+            <div class="container">
+                <div class="order-header-content">
+                    <div class="order-title-section">
+                        <h1 class="order-title">주문/결제</h1>
+                        <p class="order-subtitle">주문 정보를 확인하고, 배송지 입력 및 결제를 진행해주세요.</p>
+                    </div>
+                    <!-- 뒤로가기 버튼 -->
+                    <button class="btn-back" onclick="history.back()">
+                        <span class="back-icon">←</span>
+                        <span class="back-text">뒤로가기</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 주문 정보 섹션 -->
+        <section class="order-details">
+            <div class="container">
+
+                <!-- 주문 기본 정보 카드 -->
+                <div class="order-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">📋 주문 정보</h2>
+                    </div>
+                    <div class="order-basic-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">주문번호</span>
+                                <span class="info-value" name="orderUuid" id="orderNumber">orderUuid</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">주문일자</span>
+                                <span class="info-value" id="orderDate">2025년 1월 15일</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주문 상품 정보 카드 -->
+                <div class="order-product-card">
+                    <div class="card-header">
+                        <h2 class="card-title">📦 주문 상품</h2>
+                        <span class="product-count" id="productCount">총 n개 상품</span>
+                    </div>
+                    <div class="product-list" name="orderItems" id="productList">
+                        <!-- JS로 동적으로 주문 상품 목록 추가 -->
+                    </div>
+                </div>
+
+                <!-- 배송 정보 카드 -->
+                <div class="delivery-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">🚚 배송 정보</h2>
+                    </div>
+                    <div class="delivery-details">
+                        <!-- 배송지 정보 입력 -->
+                        <div class="delivery-address">
+                            <h3 class="address-title">배송지 정보</h3>
+                            <div class="address-details">
+                                <div class="address-item">
+                                    <span class="address-label">받는 분</span>
+                                    <input type="text" class="address-value" id="orderName" placeholder="이름" required>
+                                    <div class="error-message" id="orderNameError"></div>
+                                </div>
+                                <div class="address-item">
+                                    <span class="address-label">연락처</span>
+                                    <input type="text" class="address-value" id="phoneNumber" placeholder="연락처" required>
+                                    <div class="error-message" id="phoneNumberError"></div>
+                                </div>
+                                <div class="address-item">
+                                    <span class="address-label">주소</span>
+                                    <div class="address-input-group">
+                                        <div class="postcode-row">
+                                            <input type="text" id="postcode" placeholder="우편번호" readonly required>
+                                            <input type="button" id="btn-search-postcode" value="우편번호 찾기">
+                                        </div>
+
+                                        <div class="input-with-error">
+                                            <input type="text" id="roadAddress" placeholder="도로명 주소" readonly required>
+                                            <div class="error-message" id="roadAddressError"></div>
+                                        </div>
+
+                                        <div class="input-with-error">
+                                            <input type="text" id="detailAddress" placeholder="상세 주소" required>
+                                            <div class="error-message" id="detailAddressError"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="address-item">
+                                    <span class="address-label">배송 요청사항</span>
+                                    <input class="address-value" id="delivery-memo" placeholder="배송 요청사항" required>
+                                    <div class="error-message" id="deliveryMemoError"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 결제 정보 카드 -->
+                <div class="payment-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">💳 결제 정보</h2>
+                    </div>
+                    <div class="payment-details">
+                        <!-- 결제 금액 요약 -->
+                        <div class="payment-summary">
+                            <div id="productAmountContainer">
+                                <!-- 동적으로 상품별 금액 추가 -->
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">배송비</span>
+                                <span class="summary-value" id="deliveryFee">무료배송</span>
+                            </div>
+                            <div class="summary-row used-points" id="usedPointsWrapper">
+                                <span class="summary-label">사용 포인트</span>
+                                <span class="summary-value" id="usedPoints">0p</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span class="summary-label">최종결제금액</span>
+                                <span class="summary-value" name="totalPrice" id="finalAmount">1,000원</span>
+                            </div>
+                        </div>
+
+                        <!-- 결제 정보 -->
+                        <div class="payment-method">
+                            <h3 class="method-title">결제 방법</h3>
+                            <div class="method-details">
+                                <!-- 결제 버튼 표시 -->
+                                <div class="method-item">
+                                    <button class="btn-action btn-reorder">
+                                        <span class="btn-icon">💰</span>
+                                        <span class="btn-text">무통장입금</span>
+                                    </button>
+                                    <button class="btn-action btn-reorder">
+                                        <span class="btn-icon">📱</span>
+                                        <span class="btn-text">휴대폰 결제</span>
+                                    </button>
+                                    <button class="btn-action btn-reorder">
+                                        <span class="btn-icon">💵</span>
+                                        <span class="btn-text">계좌이체</span>
+                                    </button>
+                                    <button class="btn-action btn-reorder" id="orderBtn">
+                                        <span class="btn-icon">💳</span>
+                                        <span class="btn-text">간편결제</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주문 관리 버튼 섹션 -->
+                <div class="order-actions-card">
+                    <!-- 주의사항 -->
+                    <div class="order-notes">
+                        <h3 class="notes-title">📌 주문 관련 안내</h3>
+                        <ul class="notes-list">
+                            <li>배송완료 후 7일 이내에 교환/반품 신청이 가능합니다.</li>
+                            <li>상품후기 작성 시 추가 포인트를 적립해드립니다.</li>
+                            <li>친환경 포장재 사용으로 지구를 보호합니다. 🌍</li>
+                            <li>문의사항은 고객센터(1588-1234) 또는 온라인으로 접수 가능합니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- 추가 JS -->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/order-payment.js}"></script>
+    <!-- 카카오 주소 검색 스크립트 -->
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <!-- 포트원 결제 API 스크립트 -->
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+</th:block>
+</body>
+</html>

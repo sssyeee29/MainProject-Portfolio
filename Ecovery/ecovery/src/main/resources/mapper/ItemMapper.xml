@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    에코마켓 상품 Mapper.xml
+    @author : sehui
+    @fileName : ItemMapper.xml
+    @since : 250710
+    @history
+     - 250710 | sehui | 상품 단건 조회 기능 추가
+     - 250714 | sehui | 전체 상품 조회 기능 추가
+     - 250715 | sehui | 전체 상품의 수 조회 기능 추가
+     - 250715 | sehui | 전체 상품, 상품의 수 조회에 단일 조건 검색 추가
+     - 250716 | sehui | 상품 등록 기능 추가
+     - 250717 | sehui | 상품 수정 기능 추가
+     - 250718 | sehui | 전체 상품 조회 기능에 category 조인 추가
+     - 250718 | sehui | 상품 삭제 기능 추가
+     - 250722 | sehui | 재고 수량 감소 기능 추가
+     - 250724 | sehui | 상품 삭제 기능 제거
+     - 250729 | sehui | 전체 상품 조회 기능에 전체 검색 조건 추가
+     - 250729 | sehui | 전체 상품의 수 조회 기능에 전체 검색 조건 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.ItemMapper">
+
+    <resultMap id="itemResultMap" type="com.ecovery.domain.ItemVO">
+        <id property="itemId" column="item_id" />
+        <result property="itemName" column="item_name" />
+        <result property="price" column="price" />
+        <result property="stockNumber" column="stock_number" />
+        <result property="categoryId" column="category_id" />
+        <result property="itemDetail" column="item_detail" />
+        <result property="itemSellStatus" column="sell_status" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <!-- 전체 상품 조회 + 페이징 처리 + 조건 검색 -->
+    <select id="getListWithPage" resultType="com.ecovery.dto.ItemListDto">
+        select
+            i.item_id,
+            i.item_name AS itemNm,
+            c.category_name AS category,
+            i.sell_status AS itemSellStatus,
+            img.img_url
+        from item i
+        LEFT JOIN item_img img ON i.item_id = img.item_id
+            AND img.rep_img_yn = 'Y'
+        LEFT JOIN category c ON i.category_id = c.category_id
+        <where>
+            <choose>
+                <when test="itemNm != null and itemNm != '' and category != null and category != ''">
+                    (i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                     OR c.category_name LIKE CONCAT('%', #{category}, '%'))
+                </when>
+                <when test="itemNm != null and itemNm != ''">
+                    i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                </when>
+                <when test="category != null and category != ''">
+                    c.category_name LIKE CONCAT('%', #{category}, '%')
+                </when>
+            </choose>
+        </where>
+        order by item_id desc
+        limit #{cri.amount} offset #{cri.offset}
+    </select>
+
+    <!-- 전체 상품의 수 조회 + 단일 조건 검색 -->
+    <select id="getTotalCount" resultType="int">
+        select count(*)
+        from item i
+        LEFT JOIN category c ON i.category_id = c.category_id
+        <where>
+            item_id > 0
+            <choose>
+                <when test="itemNm != null and itemNm != '' and category != null and category != ''">
+                    AND (
+                        i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                    OR c.category_name LIKE CONCAT('%', #{category}, '%')
+                    )
+                </when>
+                <when test="itemNm != null and itemNm != ''">
+                    AND i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                </when>
+                <when test="category != null and category != ''">
+                    AND c.category_name LIKE CONCAT('%', #{category}, '%')
+                </when>
+            </choose>
+        </where>
+    </select>
+
+    <!-- 상품 단건 조회 -->
+    <select id="getItemDtl" resultMap="itemResultMap">
+        select
+            i.item_id,
+            i.item_name,
+            i.price,
+            i.stock_number,
+            c.category_id,
+            i.item_detail,
+            i.sell_status,
+            i.created_at
+        from item i
+        Left Join category c ON i.category_id = c.category_id
+        where item_id = #{itemId}
+    </select>
+
+    <!-- 상품 등록 -->
+    <insert id="insertItem" parameterType="com.ecovery.domain.ItemVO" useGeneratedKeys="true" keyProperty="itemId">
+        insert into item (item_name, price, stock_number, category_id, item_detail, sell_status, created_at)
+        values (#{itemName}, #{price}, #{stockNumber}, #{categoryId}, #{itemDetail}, #{itemSellStatus}, NOW())
+    </insert>
+
+    <!-- 상품 수정 -->
+    <update id="updateItem">
+        update item
+        set item_name = #{itemName},
+            price = #{price},
+            stock_number = #{stockNumber},
+            category_id = #{categoryId},
+            item_detail = #{itemDetail},
+            sell_status = #{itemSellStatus},
+            created_at = now()
+        where item_id = #{itemId}
+    </update>
+
+    <!-- 상품 ID로 상품 정보 조회(장바구니) -->
+    <select id="findByItemId" parameterType="long" resultMap="itemResultMap">
+        select
+            i.item_id,
+            i.item_name,
+            i.price,
+            i.stock_number,
+            c.category_id,
+            i.item_detail,
+            i.sell_status,
+            i.created_at
+        from item i
+                 Left Join category c ON i.category_id = c.category_id
+        where item_id = #{itemId}
+    </select>
+    
+    <!-- 재고 수량 감소 -->
+    <update id="removeStock">
+        update item
+        set stock_number = stock_number - #{quantity}
+        where item_id = #{itemId}
+        AND stock_number >= #{quantity}
+    </update>
+</mapper>

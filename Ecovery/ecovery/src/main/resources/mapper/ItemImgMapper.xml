@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    에코마켓 상품 이미지 Mapper.xml
+    @author : sehui
+    @fileName : ItemImgMapper.xml
+    @since : 250710
+    @history
+     - 250710 | sehui | 상품의 전체 이미지 조회 기능 추가
+     - 250716 | sehui | 상품 이미지 등록 기능 추가
+     - 250716 | sehui | 상품 이미지 수정 기능 추가
+     - 250716 | sehui | 상품 이미지 단건 조회 기능 추가
+     - 250718 | sehui | 상품 이미지 삭제 기능 추가
+     - 250724 | sehui | 상품 이미지 삭제 기능 제거
+     - 250724 | sehui | 대표 이미지 조회 기능 추가
+     - 250731 | sehui | 상품의 전체 이미지 조회에 오름차순 정렬 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.ItemImgMapper">
+
+    <!-- 상품의 전체 이미지 조회 -->
+    <select id="getItemImgList" resultType="com.ecovery.domain.ItemImgVO">
+        select *
+        from item_img
+        where item_id = #{itemId}
+        order by item_img_id asc
+    </select>
+
+    <!-- 상품 이미지 등록 -->
+    <insert id="insertItemImg" parameterType="com.ecovery.domain.ItemImgVO" useGeneratedKeys="true" keyProperty="itemImgId">
+        INSERT INTO item_img(item_id, img_name, ori_img_name, img_url, rep_img_yn, created_at)
+        values (#{itemId}, #{imgName}, #{oriImgName}, #{imgUrl}, #{repImgYn}, NOW())
+    </insert>
+
+    <!-- 상품 이미지 단건 조회 -->
+    <select id="getItemImgById" resultType="com.ecovery.domain.ItemImgVO">
+        select * from item_img where item_img_id = #{itemImgId}
+    </select>
+
+    <!-- 상품 이미지 수정을 위한 delete -->
+    <delete id="deleteImagesByItemId" parameterType="long">
+        DELETE FROM item_img
+        WHERE item_id = #{itemId}
+    </delete>
+
+    <!-- 대표 이미지 조회 -->
+    <select id="findRepImgByItemId" resultType="com.ecovery.domain.ItemImgVO">
+        SELECT * from item_img
+        where item_id = #{itemId}
+        AND rep_img_yn = 'Y'
+    </select>
+
+    <!-- 수정된 이미지를 대표 이미지로 update-->
+    <update id="updateRepImgYn">
+        UPDATE item_img
+        SET rep_img_yn = #{repImgYn}
+        WHERE item_Img_Id = #{itemImgId}
+    </update>
+</mapper>
