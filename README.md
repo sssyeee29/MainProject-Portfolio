@@ -136,45 +136,33 @@ AI 기반 대형폐기물 분류를 비롯해 분리배출 신고, 무료나눔,
 - 이미지 및 첨부파일은 **Local Storage**방식으로 저장 후 경로 DB 연동
 - **MYSQL 8.0** 데이터베이스를 기반으로 모든 게시판 및 사용자 데이터 관리 
 
-<img width="1345" height="773" alt="image" src="https://github.com/user-attachments/assets/66b8e37a-af47-4e8f-b877-f7a984af799d" />
+<img width="1893" height="1027" alt="image" src="https://github.com/user-attachments/assets/f2609713-accd-40bc-9adc-eae44d6a824e" />
 
 ---
 # 5. 클래스 구조 
+<img width="1917" height="797" alt="image" src="https://github.com/user-attachments/assets/1ecfa40e-8c5a-4272-991e-762cbf8920d9" />
 
+이 다이어그램은 **무료나눔 게시판**의 전체 클래스 구조와 상호 관계를 나타냅니다.  
+`Controller → Service → Mapper → VO/DTO → DB` 계층 구조로 설계되어 있으며,  
+게시글 CRUD, 이미지 업로드·수정·삭제, 댓글·대댓글 관리, 페이징 및 검색 기능을 포함합니다.  
+각 계층은 역할이 명확히 분리되어 있어 유지보수성과 확장성이 높으며,  
+이미지 처리와 댓글 기능은 각각 전용 Service와 Mapper를 통해 독립적으로 관리됩니다.  
+또한, DTO는 뷰나 API 응답에 필요한 데이터 전송을 담당하고, VO는 DB 테이블과 1:1 매핑되어  
+MyBatis Mapper와 트랜잭션을 통해 안정적으로 데이터가 저장·조회됩니다.
 
 ---
 # 6. 화면 예시 
 
+
 ---
 # 7. Troble Shooting
-폼 데이터 처리 안정화(이미지 수정 & 데이터 바인딩 문제 해결)
-S (상황)
-무료나눔 게시글 수정 기능 개발 중,
-이미지 개별 삭제 시 갯수 제한(최대 5장)을 충족해도 MultipartFile 오류로 수정 불가
-수정 페이지 진입 시 기존 게시글의 지역·카테고리·상태값이 기본값으로만 표시되고, 기존 데이터가 폼에 반영되지 않는 문제가 발생
+- **문제**: 수정 페이지 진입 시 기존 데이터가 폼에 반영되지 않고, 이미지 개별 삭제 후 신규 업로드 시 MultipartFile 오류 발생.
+- **원인**: 삭제/유지 이미지 구분 로직 미비 및 데이터 바인딩 시점 문제.
+- **해결**:
+  - FreeImgDto에 `toBeDeleted` 플래그 추가로 삭제/유지 이미지 구분.
+  - 유지 이미지 + 신규 이미지 합산으로 개수 제한 검증.
+  - `window.free` 전역 바인딩 및 DOMContentLoaded 시점에 초기값 세팅.
+- **결과**: 수정 기능 정상 동작, 재입력 최소화, 동일 문제 재발 없음.
 
-T (과제)
-서버와 클라이언트 간 데이터 전달 구조를 안정화
-이미지 삭제·유지 여부와 신규 업로드를 혼합 처리 가능하게 개선
-수정 페이지에서 기존 데이터 자동 세팅으로 사용자 재입력 최소화
-
-A (행동)
-이미지 수정 로직 개선
-FreeImgDto에 toBeDeleted 플래그 추가
-삭제 요청된 이미지(toBeDeleted=true)와 유지 이미지(false)를 명확히 구분
-수정 시 모든 기존 이미지를 삭제한 후, 유지 이미지 + 신규 이미지 재업로드
-업로드 전 개수 제한 검증 로직을 유지 이미지 + 신규 이미지 합산 기준으로 변경
-데이터 바인딩 시점 조정
-HTML에 window.free = /*[[${free}]]*/ null;로 명시적 전역 바인딩
-DOMContentLoaded 시점에서 initializeFormData() 실행
-populateRegion2, handleConditionChange 등 의존 함수의 실행 순서 재배치로 초기값 정상 반영
-
-R (결과)
-이미지 삭제 후 신규 업로드 시 수정 기능 100% 정상 작동
-갯수 제한 규칙과 대표 이미지 지정 로직 충돌 없이 유지
-기존 데이터 자동 세팅으로 사용자 재입력 작업량 약 50% 절감
-
-QA 과정에서 관련 오류 재발 건수 0건
-
----
 # 8. 개선사항 및 프로젝트 소감 
+- 
