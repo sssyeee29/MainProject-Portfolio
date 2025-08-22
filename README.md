@@ -196,16 +196,38 @@ AI 기반 대형폐기물 분류를 비롯해 분리배출 신고, 무료나눔,
 
 ---
 <h3><무료나눔 수정페이지></h3>
-<img width="936" height="917" alt="{AD03B524-6B89-490C-BE50-072C7A3E46A4}" src="https://github.com/user-attachments/assets/1754a885-4e6d-44e6-b766-f7d155a8b843" />
+<img width="1163" height="821" alt="{54998963-EE68-4A66-B7EE-77B730FBCC76}" src="https://github.com/user-attachments/assets/9c978e24-047e-43ac-a363-2e9e11522ea1" />
 * 상세페이지에서 수정하기 버튼 누르면 나오는 모달창 
 
-<img width="829" height="880" alt="{FF283BBC-A566-43BF-A4B5-830348DB1F53}" src="https://github.com/user-attachments/assets/bbd69a46-07fd-4e7b-8039-1713e4bc563d" />
+<img width="831" height="881" alt="{18EF4BA8-349D-4E90-A0B1-9A164DC1DCE9}" src="https://github.com/user-attachments/assets/ae4fddd6-ab09-4700-b7ee-811210ec5e25" />
+<img width="752" height="568" alt="{79D71A8F-5524-4ABB-85CE-F9BD8B1992B3}" src="https://github.com/user-attachments/assets/1608c296-6f6c-4b71-8e8b-b9ae80b3d0d2" />
 * 수정페이지에서 거래상태 포함 모든 정보 수정 가능
 
+<img width="1349" height="809" alt="{26799F4C-E7E0-4425-A0EF-E68C50EA812C}" src="https://github.com/user-attachments/assets/276dd4aa-b1b7-4109-84f5-d403486e9322" />
+* 수정완료시 나오는 모달창과 알림창
 
+<img width="1149" height="778" alt="{5EDEEE15-E105-486A-A8E8-724179C227D1}" src="https://github.com/user-attachments/assets/7a8cbe95-f9a7-4c50-8795-9b7668f930e3" />
+* 거래상태 나눔중 -> 나눔완료로 변경 및 이미지 한장 삭제한거 수정완료
 
+<img width="335" height="398" alt="{19959C15-ADCA-4692-8F4D-D014530167C4}" src="https://github.com/user-attachments/assets/7c288a1e-105e-4e7d-bbcc-cd047d847454" />
+* 메인화면에도 거래상태 수정된거 확인 가능
 
+--- 
+<h3><무료나눔 삭제></h3>
 
+<img width="1154" height="843" alt="{5A4EA635-4D2A-4E20-BA19-8A8DD82C4CEA}" src="https://github.com/user-attachments/assets/37b7f1a8-763a-4e4a-815a-7e9f741786a4" />
+* 상세페이지에서 보이는 삭제버튼 클릭시 나오는 모달창
+
+---
+<h3><무료나눔 댓글/대댓글 기능></h3>
+<img width="844" height="745" alt="{A04AE862-8E9A-42EF-8E37-82D4DFF0C8B8}" src="https://github.com/user-attachments/assets/924d9c4d-0c24-446c-8c5b-1e4d52016e4e" />
+* 상세페이지 아래쪽에 위치한 댓글창 
+
+<img width="815" height="794" alt="{32ECC702-190C-4AA1-AFEB-A8A55B1AE808}" src="https://github.com/user-attachments/assets/48dfd351-8d65-4542-a81e-3ac804854efc" />
+* 대댓글보기 누르면 댓글에 해당하는 대댓글 목록 및 대댓글 등록창
+
+<img width="801" height="646" alt="{1C8AA672-FD4E-4D5E-A707-DA794D1B8EE0}" src="https://github.com/user-attachments/assets/9b870a11-17af-449a-9695-8ba1762bacf9" />
+* 댓글 페이징 
 
 ---
 # 7. Troble Shooting – 수정 페이지 데이터/이미지 처리 오류
