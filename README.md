@@ -161,6 +161,50 @@ AI 기반 대형폐기물 분류를 비롯해 분리배출 신고, 무료나눔,
 
 ---
 # 6. 화면 예시 
+<details>
+<summary><h3>무료나눔 화면구성 보기</h3></summary>
+
+--- 
+<h3><무료나눔 메인페이지></h3>
+<img width="1367" height="672" alt="{3673829D-A150-4D6A-A69D-CB9DD102EB7F}" src="https://github.com/user-attachments/assets/1283cb16-929d-44de-93b6-8ef31e5cd18b" />
+<img width="1227" height="893" alt="{6C3E4669-FB6F-40FB-9B22-4054EBD33E91}" src="https://github.com/user-attachments/assets/bebc16b8-b06b-4d8b-a1cf-3c8df6ffec12" />
+
+*
+
+---
+<h3><무료나눔 메인페이지 - 검색기능></h3>
+<img width="1196" height="661" alt="{B0B46550-D64E-49E3-873F-63E061705051}" src="https://github.com/user-attachments/assets/0a0616e2-752a-4052-b11b-5ee4a4cb51c3" />
+
+---
+<h3><무료나눔 상세페이지></h3>
+<img width="1093" height="987" alt="{38E29525-8320-4E08-8267-2CEBD64FB62E}" src="https://github.com/user-attachments/assets/e8f29148-bb1c-41d7-ab86-f94898bef3f8" />
+* 비회원과 게시글 작성자가 아닌 사람들한테 보이는 화면  
+
+<img width="936" height="919" alt="{C47015F5-4B02-4EB6-A884-47B27BC264D3}" src="https://github.com/user-attachments/assets/114bcf44-5fa8-4156-9146-bcc9e6af697e" />
+* 게시글 작성자와 관리자에게만 보이는 화면
+
+---
+<h3><무료나눔 등록페이지></h3>
+<img width="946" height="893" alt="{19213E0E-960C-4AA5-858D-1A16B7DAFC31}" src="https://github.com/user-attachments/assets/40f749c8-4e45-441b-a569-8dc47304e871" />
+<img width="917" height="727" alt="{CA95413D-7EF3-48DA-B401-2663E0829E3A}" src="https://github.com/user-attachments/assets/52dcb53b-385c-4faa-b11c-22c969126a54" />
+  
+<img width="923" height="431" alt="{91928654-ADCD-4442-B48D-461B7568ECA0}" src="https://github.com/user-attachments/assets/2147794e-03e0-424c-92d0-3dcde77888f4" />
+* 이미지 등록시 미리보기로 보이는 이미지
+
+<img width="1159" height="196" alt="{427A896F-4A62-411B-9F84-081AA7C23164}" src="https://github.com/user-attachments/assets/77ba1952-e1e5-4a90-a521-14bc6ba88c57" />
+* 나눔글 등록하면 나오는 모달창과 등록완료했다는 알림
+
+---
+<h3><무료나눔 수정페이지></h3>
+<img width="936" height="917" alt="{AD03B524-6B89-490C-BE50-072C7A3E46A4}" src="https://github.com/user-attachments/assets/1754a885-4e6d-44e6-b766-f7d155a8b843" />
+* 상세페이지에서 수정하기 버튼 누르면 나오는 모달창 
+
+<img width="829" height="880" alt="{FF283BBC-A566-43BF-A4B5-830348DB1F53}" src="https://github.com/user-attachments/assets/bbd69a46-07fd-4e7b-8039-1713e4bc563d" />
+* 수정페이지에서 거래상태 포함 모든 정보 수정 가능
+
+
+
+
 
 
 ---
