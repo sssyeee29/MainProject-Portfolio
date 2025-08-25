@@ -138,9 +138,16 @@ AI 기반 대형폐기물 분류를 비롯해 분리배출 신고, 무료나눔,
 
 ---
 # 5. 클래스 구조 
+
 <img width="1917" height="797" alt="image" src="https://github.com/user-attachments/assets/1ecfa40e-8c5a-4272-991e-762cbf8920d9" />
 
-이 다이어그램은 **무료나눔 게시판**의 전체 클래스 구조와 상호 관계를 나타냅니다.  
+* 이 다이어그램은 **무료나눔 게시판**의 전체 클래스 구조와 상호 관계를 나타냅니다.  
+
+<img width="740" height="599" alt="{9F28DA0A-40B0-4F99-AFA2-BD9EA08C7A90}" src="https://github.com/user-attachments/assets/d34d841e-6b34-438d-bbe2-94b4753da96a" />
+
+* 이 유스케이스 다이어그램은 무료나눔 게시판에서 비회원, 회원, 관리자별 권한을 나타냅니다.
+* 비회원은 게시글/댓글 조회만 가능하고, 회원과 관리자는 게시글 및 댓글의 등록·수정·삭제 기능까지 수행할 수 있습니다.
+* 즉, 사용자 유형에 따라 접근 가능한 기능 범위를 한눈에 확인할 수 있습니다.
 
 **구성 흐름**  
 `Controller → Service → Mapper → VO/DTO → DB`  
