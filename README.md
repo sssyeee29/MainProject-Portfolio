@@ -8,8 +8,6 @@
 4주차 : 백엔드 API 개발, DB 연동, 이미지 업로드 기능 구현
 5주차 : 프론트엔드 연동, 배포 환경 구성, AI 모델 연결, 통합 테스트 및 최종 발표   
 
-  <img width="1399" height="249" alt="{355CE504-AAAF-45FF-9FEE-83269A0F985B}" src="https://github.com/user-attachments/assets/be80ca2a-11ba-4992-9e82-a87bfdfe0c51" />
-
 ---
 # 📚 목차 📚
 1. [🌱 프로젝트 소개](#1-프로젝트-소개)
